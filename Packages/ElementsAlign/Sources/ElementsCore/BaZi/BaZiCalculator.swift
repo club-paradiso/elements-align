@@ -146,8 +146,12 @@ public struct BaZiCalculator: Sendable {
             solarJD = solarTime(at: instant, longitude: longitude, options: options)
         case .dayOnly:
             let solar = solarTime(at: instant, longitude: longitude, options: options)
-            let noon = solar.value.rounded(.down) + 0.5
-            solarJD = JulianDay(noon)
+            // A Julian Day starts at noon, so the *integer* Julian Day is the
+            // noon belonging to this civil day. Rounding down after adding a
+            // half day picks it out for any time of day; rounding down first
+            // and adding a half would land on midnight and roll an afternoon
+            // input into the following day.
+            solarJD = JulianDay((solar.value + 0.5).rounded(.down))
         }
 
         let solarDate = JulianDayConversion.gregorianDate(from: solarJD.value)

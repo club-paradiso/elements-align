@@ -39,6 +39,36 @@ public struct RGB: Hashable, Sendable {
         return (max(a, b) + 0.05) / (min(a, b) + 0.05)
     }
 
+    /// CIE L*a*b* components, D65 white point.
+    ///
+    /// Contrast ratio compares lightness only, so it says almost nothing about
+    /// whether two colours of similar lightness are *distinguishable* -- a
+    /// green and an orange of equal luminance score about 1.0. Perceptual
+    /// distance in Lab is the right measure for that, and it is what the
+    /// element palette is checked against.
+    public var lab: (l: Double, a: Double, b: Double) {
+        func linear(_ c: Double) -> Double {
+            c <= 0.04045 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4)
+        }
+        let r = linear(red), g = linear(green), b = linear(blue)
+        let x = (0.4124 * r + 0.3576 * g + 0.1805 * b) / 0.95047
+        let y = 0.2126 * r + 0.7152 * g + 0.0722 * b
+        let z = (0.0193 * r + 0.1192 * g + 0.9505 * b) / 1.08883
+        func f(_ t: Double) -> Double {
+            t > 0.008856 ? pow(t, 1.0 / 3.0) : (7.787 * t + 16.0 / 116.0)
+        }
+        let fx = f(x), fy = f(y), fz = f(z)
+        return (116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz))
+    }
+
+    /// CIE76 perceptual distance. Roughly, below 2.3 is imperceptible and
+    /// above about 10 reads as a clearly different colour.
+    public func perceptualDistance(to other: RGB) -> Double {
+        let a = lab, b = other.lab
+        let dl = a.l - b.l, da = a.a - b.a, db = a.b - b.b
+        return (dl * dl + da * da + db * db).squareRoot()
+    }
+
     /// Linear blend towards another colour.
     public func mixed(with other: RGB, amount: Double) -> RGB {
         let t = Angle.clamp01(amount)
@@ -98,12 +128,17 @@ public enum Palette {
 
     // MARK: - Alignment states
 
-    public static let alignmentLow = ColorToken(dark: 0x4C525A, light: 0x8A9099)
-    public static let alignmentUnfavourable = ColorToken(dark: 0x5E656E, light: 0x767D87)
-    public static let alignmentNeutral = ColorToken(dark: 0x828A94, light: 0x5F6771)
-    public static let alignmentFavourable = ColorToken(dark: 0x94AEB3, light: 0x466A72)
-    public static let alignmentStrong = ColorToken(dark: 0xC9A96A, light: 0x7E6329)
-    public static let alignmentAligned = ColorToken(dark: 0xF0E6CE, light: 0x5E4C22)
+    // The ramp is ordered by lightness, not only by hue: on dark it brightens
+    // monotonically from low to aligned, and on light it darkens monotonically.
+    // That means the state remains readable without relying on colour
+    // perception, and every step clears 3:1 against its own background. Both
+    // properties are asserted in ElementsDesignTests.
+    public static let alignmentLow = ColorToken(dark: 0x585F68, light: 0x858B93)
+    public static let alignmentUnfavourable = ColorToken(dark: 0x6B727C, light: 0x747B84)
+    public static let alignmentNeutral = ColorToken(dark: 0x828A94, light: 0x636B76)
+    public static let alignmentFavourable = ColorToken(dark: 0x94AEB3, light: 0x41636A)
+    public static let alignmentStrong = ColorToken(dark: 0xC9A96A, light: 0x654F21)
+    public static let alignmentAligned = ColorToken(dark: 0xF0E6CE, light: 0x55441F)
 
     public static func token(for level: AlignmentLevel) -> ColorToken {
         switch level {

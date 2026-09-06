@@ -38,6 +38,34 @@ public struct AlignmentState: Hashable, Sendable {
     /// True when heading was unavailable and the spatial component fell back
     /// to neutral. The interface must not imply a direction in this case.
     public let isHeadingAvailable: Bool
+
+    /// Memberwise initialiser.
+    ///
+    /// Public so that presentation code and tests can construct a state
+    /// directly. Producing one this way bypasses the engine and therefore
+    /// carries no guarantee of internal consistency; use ``AlignmentEngine``
+    /// for anything the user will see.
+    public init(score: Double,
+                level: AlignmentLevel,
+                spatialScore: Double,
+                temporalScore: Double,
+                personalScore: Double,
+                dominantElement: Element,
+                favourableDirection: CompassSector,
+                headingRelation: BaZhaiRelation?,
+                degreesToFavourable: Double?,
+                isHeadingAvailable: Bool) {
+        self.score = score
+        self.level = level
+        self.spatialScore = spatialScore
+        self.temporalScore = temporalScore
+        self.personalScore = personalScore
+        self.dominantElement = dominantElement
+        self.favourableDirection = favourableDirection
+        self.headingRelation = headingRelation
+        self.degreesToFavourable = degreesToFavourable
+        self.isHeadingAvailable = isHeadingAvailable
+    }
 }
 
 /// Combines a person, a moment and a direction into a single symbolic value.
