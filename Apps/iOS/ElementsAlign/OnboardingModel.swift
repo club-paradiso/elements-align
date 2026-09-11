@@ -75,10 +75,22 @@ public final class OnboardingModel {
             polarity: polarity)
     }
 
+    private var cachedChart: (profile: PersonalProfile, chart: PersonalChart)?
+
     /// The chart as it currently stands, so the summary step can show the user
     /// what their answers produced before they commit to them.
+    ///
+    /// Cached against the profile it was built from. Building a chart runs the
+    /// solar-term solver, and this is read from a SwiftUI body -- without the
+    /// cache it would re-solve on every render of the summary step.
     public var previewChart: PersonalChart {
-        PersonalChart(profile: profile, calculator: calculator)
+        let current = profile
+        if let cachedChart, cachedChart.profile == current {
+            return cachedChart.chart
+        }
+        let chart = PersonalChart(profile: current, calculator: calculator)
+        cachedChart = (current, chart)
+        return chart
     }
 
     public func advance() {

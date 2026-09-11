@@ -14,15 +14,39 @@ struct PhoneDebugView: View {
     private let engine = AlignmentEngine()
     @State private var heading: Double = 135
 
+    /// Built once on appear, not in `body`. Building a snapshot runs the
+    /// solar-term solver; rebuilding it per render would re-solve on every
+    /// frame of the heading slider.
+    @State private var temporal: TemporalSnapshot?
+
     var body: some View {
-        let temporal = TemporalSnapshot(instant: Date(),
+        Group {
+            if let temporal {
+                inspector(temporal: temporal)
+            } else {
+                ProgressView()
+            }
+        }
+        .navigationTitle("Engine")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button(LocalizedStringKey("action.done")) { dismiss() }
+            }
+        }
+        .task {
+            temporal = TemporalSnapshot(instant: Date(),
                                         location: chart.profile.birth.location,
                                         calculator: calculator,
                                         options: chart.profile.options)
+        }
+    }
+
+    private func inspector(temporal: TemporalSnapshot) -> some View {
         let state = engine.evaluate(AlignmentContext(chart: chart,
                                                      temporal: temporal,
                                                      heading: heading))
-        List {
+        return List {
             Section("Heading") {
                 VStack(alignment: .leading) {
                     Slider(value: $heading, in: 0...359)
@@ -91,13 +115,6 @@ struct PhoneDebugView: View {
                     mono("\(degrees) deg",
                          String(format: "%.1f  %@", swept.score, swept.level.identifier))
                 }
-            }
-        }
-        .navigationTitle("Engine")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .confirmationAction) {
-                Button(LocalizedStringKey("action.done")) { dismiss() }
             }
         }
     }

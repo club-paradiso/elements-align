@@ -1,7 +1,11 @@
 import SwiftUI
 import ElementsSpatial
 
+// Explicitly main-actor isolated: the stored `model` is a @MainActor type and
+// its initialiser runs in this struct's own init, which would otherwise be
+// nonisolated under strict concurrency.
 @main
+@MainActor
 struct ElementsAlignWatchApp: App {
     @State private var model = WatchAlignmentModel(provider: Self.makeProvider())
 
