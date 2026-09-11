@@ -6,8 +6,8 @@ repository should be read as validated. That is what this document is for.
 
 ## Before anything else
 
-The apps have never been compiled. Work through
-[BUILD_STATUS.md](BUILD_STATUS.md) first.
+The app targets have never been compiled — CI covers the engine package only.
+Get them building in Xcode first; see [BUILD_STATUS.md](BUILD_STATUS.md).
 
 ## Setup
 

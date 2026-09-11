@@ -1,118 +1,115 @@
 # Build status
 
-**Short version: the Swift in this repository has never been compiled.**
-
-That is a real limitation and it is stated first because nothing else in this
-document is worth reading if it is missed.
-
-## What failed, exactly
-
-The session that authored this repository ran on Linux with no Swift
-toolchain, and could not obtain one:
-
-| Attempt | Result |
+| | |
 | --- | --- |
-| `swift --version` | not installed |
-| `download.swift.org` toolchain tarball | `curl (56) CONNECT tunnel failed, 403` — denied by the environment's egress proxy |
-| `swiftly` installer | same host, same denial |
-| `apt-get install swift` | the Ubuntu `swift` package is OpenStack Swift, unrelated |
-| Docker image `swift:6` | Docker unavailable in the sandbox |
-| `xcodebuild` | macOS only |
+| Engine builds | **Yes** — `swift build`, Swift 6.0.3, Linux |
+| Engine tests | **Yes** — 104 tests, 0 failures, ~1.6 s |
+| CI | Green on every push and PR |
+| iOS / watchOS app targets | **Not compiled** — need Xcode |
+| Sensor behaviour on hardware | **Not validated** — no device |
 
-So `swift build`, `swift test` and `xcodebuild` have **not** been run. No
-claim anywhere in this repository should be read as "this compiles".
+`.github/workflows/engine.yml` runs `swift build` and `swift test` against
+`Packages/ElementsAlign` in a `swift:6.0-noble` container on every push to
+`main` and every pull request. No Xcode, no macOS runner, no third-party
+actions.
 
-## What was verified instead
+    make test        # the same thing locally
+    make syntax      # parse check, needs no toolchain at all
 
-Not being able to compile is not a reason to verify nothing. Three things were
-done in its place.
+## How this repository got here
 
-### 1. Every Swift file parses
+It was authored on Linux with no Swift toolchain, and one could not be
+obtained: `download.swift.org` was denied by the egress proxy (403 on
+CONNECT), the Ubuntu `swift` package is OpenStack Swift, Docker was
+unavailable, and `xcodebuild` is macOS-only. So roughly 3,000 lines of Swift
+were written without a compiler ever seeing them.
 
-`Tools/syntaxcheck/check_swift_syntax.py` parses all 49 Swift files with
-tree-sitter and reports zero syntax errors. This catches unbalanced braces and
-malformed declarations. It does **not** type-check, resolve names, or verify
-API availability, so it cannot tell you the code compiles — only that it is
-not obviously broken.
+That is worth recording because it shaped what is in here. Three things stood
+in for a compiler, and it is worth knowing which of them worked.
 
-    make syntax
+### What held up
 
-One known grammar limitation: tree-sitter rejects a continuation line starting
-with `*`, which Swift itself accepts. Rather than suppress the diagnostic, such
-expressions are written with the operator at the end of the line.
-
-### 2. The mathematics was validated against external published data
-
-The part of this product that has to be correct is the engine, and the engine
-was checked independently of Swift. `Tools/oracle/` is a second implementation
-in Python, and it was validated against sources outside this project:
+**The mathematics was validated against external published data.**
+`Tools/oracle/` is an independent Python implementation of the same
+deterministic maths, checked against sources outside this project:
 
 | Claim | Checked against | Result |
 | --- | --- | --- |
-| Apparent solar longitude | Untruncated VSOP87 via PyMeeus, 1900–2100 | worst case 0.395″ (~9.6 s of solar-term timing) |
+| Apparent solar longitude | Untruncated VSOP87 via PyMeeus, 1900–2100 | 0.395″ worst case (~9.6 s) |
 | Solar terms | Published 2026 and 2000 equinox/solstice instants | within ~1 minute |
-| Equation of time | Textbook annual landmarks | −14.17 Feb, +3.67 May, −6.56 Jul, +16.45 Nov, zero in Apr and Dec |
-| Year pillars | Published sexagenary years (1984 甲子, 2024 甲辰, 2025 乙巳, 2026 丙午) | exact |
-| Day pillar congruence | Two independent published statements; 2000-01-07 = 甲子 | exact, with 60-day periodicity |
+| Equation of time | Textbook annual landmarks | −14.17 Feb, +3.67 May, −6.56 Jul, +16.45 Nov |
+| Year pillars | Published sexagenary years | exact |
+| Day pillar congruence | Two independent published statements; 2000-01-07 = 甲子 | exact, 60-day periodic |
 | Eight Mansions derivation | The classical 坎 row, all eight directions | exact |
-| Relation symmetry | Structural property of the system | 0 asymmetric pairs across all 8 gua |
-| Life gua congruence | Per-century classical rules, 1900–2060, both polarities | 0 mismatches |
+| Relation symmetry | Structural property of the system | 0 asymmetric pairs |
+| Life gua congruence | Per-century classical rules, 1900–2060 | 0 mismatches |
 
-The golden fixtures the Swift tests assert against come from this validated
-oracle, so those tests are a genuine check of the Swift and not a tautology.
-Several tests additionally assert against the external values directly, so a
-shared mistake in both implementations would still be caught.
+This worked. Every one of those assertions passed first time when the tests
+finally ran. The golden fixtures the Swift tests assert against come from this
+validated oracle, so those tests check the implementation rather than
+themselves.
 
-### 3. Every numeric assertion was pre-checked
-
-Because the tests cannot be run here, each numeric expectation in them was
-computed through the oracle before being committed. That process found two
-real bugs, both now fixed:
+**Pre-computing every numeric expectation through the oracle.** This caught
+two real bugs and one wrong test before anything was committed:
 
 - `dayOnly` charts computed solar noon as `floor(jd) + 0.5`, which is
   *midnight* — a Julian Day begins at noon, so the integer Julian Day already
   is noon. Any afternoon input rolled into the following day.
 - The alignment ramp's `low` colour failed 3:1 contrast on the watch
   background, and the light ramp was not monotonic in lightness.
+- The first `dayOnly` stability test sampled a UTC day rather than a solar
+  day, which at Seoul's longitude are about eight and a half hours apart.
 
-It also found one wrong *test*: the first version of the `dayOnly` stability
-test sampled a UTC day rather than a solar day, which at Seoul's longitude are
-about eight and a half hours apart.
+### What did not hold up
 
-## What has to happen next
+**The tree-sitter parse check was not enough.** It reported all 49 files clean,
+and the first CI run failed anyway:
 
-On any machine with a Swift toolchain:
+1. **A string interpolation spanning a newline.** `CompassSector`
+   built its localisation key by indexing an array literal inside an
+   interpolation, and the literal wrapped onto a second line. Swift does not
+   allow a single-line string literal to span a newline, so the file failed to
+   lex and took the whole module with it. tree-sitter accepts the construct;
+   Swift does not. The checker now verifies quote balance directly, and that
+   check was itself verified both ways against fixtures — it flags the exact
+   construct that failed and does not fire on multi-line literals, escaped
+   quotes, or comments containing quotes.
 
-    make test          # engine + tests, no Xcode needed
-    make syntax        # parse check
+2. **A fixture precision mismatch.** Delta-T values were stored rounded to 4
+   decimals and asserted to within 1e-6, so the rounding failed the test while
+   the engine agreed with the oracle to fourteen significant figures. Fixtures
+   are now written at a precision that exceeds the tolerance asserted against
+   them, and the remaining groups were audited for the same mistake.
 
-On macOS with Xcode, for the apps:
+Everything else compiled and passed on the first attempt, including the
+strict-concurrency annotations, the `@Observable` view models, `Bundle.module`
+resource lookup, and the generated VSOP87 tables.
+
+The honest summary: validating the *mathematics* independently was worth the
+effort and paid off completely. A parser is not a compiler, and treating one
+as a substitute is where this went wrong.
+
+## What is still unverified
+
+**The app targets have never been compiled.** They need Xcode. CI covers the
+package only, which is where the correctness lives but not where the SwiftUI
+is. On macOS:
 
     brew install xcodegen
     make project
     open ElementsAlign.xcodeproj
 
-**Expect compile errors on the first run.** Roughly 3,000 lines of Swift
-written without a compiler will not be clean. The likely categories, in
-rough order of probability:
+Expect errors there. Likely categories, in rough order:
 
-1. SwiftUI API details — `Canvas` and `GraphicsContext` call signatures,
-   `onChange` arity, `ToolbarItem` placements.
-2. `@Observable` and `@MainActor` interaction, particularly `@Bindable` usage
-   in the watch views.
-3. Access-control mismatches between the app targets and the package.
-4. Strict concurrency diagnostics; `project.yml` sets
-   `SWIFT_STRICT_CONCURRENCY: complete`, which may need relaxing to `targeted`
-   initially.
-5. `Bundle.module` resource lookup for the test fixtures.
+1. SwiftUI API details — `Canvas` and `GraphicsContext` signatures, `onChange`
+   arity, `ToolbarItem` placements.
+2. `@Observable` and `@MainActor` interaction, particularly `@Bindable` in the
+   watch views.
+3. Strict concurrency; `project.yml` sets `SWIFT_STRICT_CONCURRENCY: complete`,
+   which may need relaxing to `targeted` initially.
 
-The domain layer is the least likely to need changes: it is plain Foundation
-value types with no platform APIs. The app layer is the most likely.
-
-## Sensor behaviour
-
-Nothing about compass behaviour on real hardware has been validated. See
-[DEVICE_TESTING.md](DEVICE_TESTING.md) for the checklist that must be run on a
-paired Apple Watch before any claim about it is made. The API availability
-facts in the code comments were taken from Apple's published documentation
-data, not from memory and not from a device.
+**Sensor behaviour on real hardware.** Nothing about compass behaviour has
+been validated on a device. See [DEVICE_TESTING.md](DEVICE_TESTING.md) for the
+checklist that must be run first. The API availability facts in the code came
+from Apple's published documentation data, not from memory and not from a
+device.

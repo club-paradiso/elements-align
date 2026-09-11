@@ -2,8 +2,8 @@
 
 ## Milestone 1 — Directional Alignment Prototype
 
-**Status: implemented, not yet compiled.** See
-[BUILD_STATUS.md](BUILD_STATUS.md).
+**Status: the engine builds and its tests pass. The app targets have not been
+compiled.** See [BUILD_STATUS.md](BUILD_STATUS.md).
 
 - [x] Five Element domain model
 - [x] Personal profile model
@@ -19,16 +19,18 @@
 - [x] Debug inspectors on both platforms
 - [x] 104 tests against externally validated fixtures
 - [x] English and Korean localisation
-- [ ] **Compiles** — blocked on toolchain availability
+- [x] **Engine compiles** — Swift 6.0.3 on Linux, green in CI
+- [x] **Engine tests pass** — 104 tests, 0 failures
+- [ ] **App targets compile** — need Xcode; CI covers the package only
 - [ ] **Validated on real hardware** — see [DEVICE_TESTING.md](DEVICE_TESTING.md)
 
 ## Milestone 2 — Make it real
 
 The next session's work, in priority order.
 
-1. **Compile it.** `make test` on any Swift toolchain, then `make project` and
-   build the apps on macOS. Expect errors concentrated in the SwiftUI layer;
-   the domain layer is plain Foundation and should be close.
+1. **Build the app targets.** `make project` and build on macOS. CI covers the
+   package, which is where the correctness lives, but not the SwiftUI. Expect
+   errors concentrated there.
 2. **Run the device checklist.** Nothing about compass behaviour on hardware
    is currently verified.
 3. **Historical time zones.** Onboarding currently interprets birth date and
@@ -79,7 +81,7 @@ backend, accounts, or any analytics carrying personal data.
 
 | Limitation | Where |
 | --- | --- |
-| Never compiled | [BUILD_STATUS.md](BUILD_STATUS.md) |
+| App targets never compiled | [BUILD_STATUS.md](BUILD_STATUS.md) |
 | Sensor behaviour unvalidated | [DEVICE_TESTING.md](DEVICE_TESTING.md) |
 | Birth time zone assumed to be the device's | Milestone 2 |
 | Favourable elements use one school (扶抑法) | [ALIGNMENT_ENGINE.md](ALIGNMENT_ENGINE.md) |

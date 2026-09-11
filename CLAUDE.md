@@ -15,11 +15,16 @@ decisions.
 
 ## Start here
 
-**The Swift in this repository has never been compiled.** The authoring
-environment had no Swift toolchain and could not obtain one. Read
+The engine builds and its 104 tests pass, green in CI on every push. **The iOS
+and watchOS app targets have never been compiled** — they need Xcode, and CI
+covers the package only. Read
 [Documentation/BUILD_STATUS.md](Documentation/BUILD_STATUS.md) before trusting
-anything to build. If you have a toolchain, getting `make test` green is the
-highest-value thing you can do.
+the app layer to build.
+
+This repository was written without a Swift toolchain available. What that cost
+and what caught it is recorded in BUILD_STATUS.md; the short version is that
+validating the mathematics independently worked completely, and treating a
+parser as a substitute for a compiler did not.
 
 ## Commands
 
@@ -84,10 +89,10 @@ These are not style preferences. Breaking one breaks the product.
 8. **No third-party dependencies** without justifying them first. There are
    currently none.
 
-## Verification without a compiler
+## Verification
 
-Since `swift build` cannot run here, the bar is: **check numeric claims against
-the oracle before committing them.**
+Run `make test` before committing. If you cannot — no toolchain — then the bar
+is: **check numeric claims against the oracle before committing them.**
 
 `Tools/oracle/` is an independent Python implementation of the same
 mathematics, validated against published equinox instants, textbook
@@ -95,11 +100,17 @@ equation-of-time landmarks, published sexagenary years, and the classical
 Eight Mansions table. The Swift tests assert against fixtures it generates, so
 they are a real check rather than a tautology.
 
-This process has already caught two real bugs and one wrong test. If you add a
-test with a numeric expectation and cannot run it, compute it through the
+This process caught two real bugs and one wrong test before CI existed. If you
+add a test with a numeric expectation and cannot run it, compute it through the
 oracle first.
 
-Always run `make syntax` before committing Swift.
+A fixture's stored precision must exceed the tolerance the test asserts with,
+or the rounding itself fails the test. That has happened once.
+
+`make syntax` is a parse check, not a compiler, and it has missed a real error
+before — it now also checks quote balance, because tree-sitter accepts a string
+interpolation spanning a newline and Swift does not. Run it, but do not trust
+it as proof the code builds. `make test` is the real gate.
 
 ## Conventions
 
@@ -130,12 +141,12 @@ hardware is. Do not assert availability from memory; check.
 
 ## Current milestone
 
-**Milestone 1 — Directional Alignment Prototype.** Implemented, not compiled,
-not hardware-validated.
+**Milestone 1 — Directional Alignment Prototype.** Engine green; app targets
+uncompiled; not hardware-validated.
 
 Next, in order:
 
-1. Compile it. Expect errors concentrated in the SwiftUI layer.
+1. Build the app targets in Xcode. Expect errors concentrated in SwiftUI.
 2. Run [Documentation/DEVICE_TESTING.md](Documentation/DEVICE_TESTING.md).
 3. Fix historical time zones for birth data — the largest remaining
    correctness gap.
