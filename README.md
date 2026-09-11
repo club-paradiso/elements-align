@@ -34,6 +34,7 @@ engine's tests pass. Nothing has been run on a device.
 | Engine builds | **Yes** — `swift build`, Swift 6.0.3, Linux |
 | Engine tests | **Yes** — 131 tests, 0 failures |
 | iOS / watchOS app targets | **Yes** — `xcodebuild`, Xcode 26.6, simulator |
+| Compiler warnings | **Zero** on both targets |
 | Runtime behaviour | **Not verified** — never launched |
 | Sensor behaviour on hardware | **Not validated** — no device |
 
@@ -176,7 +177,7 @@ properties are asserted in tests. Reduce Motion collapses every duration.
 2. Run the hardware checklist in
    [Documentation/DEVICE_TESTING.md](Documentation/DEVICE_TESTING.md) —
    nothing about compass behaviour on a real watch is currently verified.
-3. Read the compiler warnings; the build passes but nobody has looked.
+3. Widen the birth-place table, or add offline geocoding.
 
 [Documentation/ROADMAP.md](Documentation/ROADMAP.md)
 

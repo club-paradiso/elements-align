@@ -151,7 +151,7 @@ Next, in order:
 
 1. Launch both apps in a simulator and see whether they behave.
 2. Run [Documentation/DEVICE_TESTING.md](Documentation/DEVICE_TESTING.md).
-3. Read the compiler warnings — `apple.yml` prints them to the run summary.
+3. Widen the birth-place table, or add offline geocoding.
 
 See [Documentation/ROADMAP.md](Documentation/ROADMAP.md).
 

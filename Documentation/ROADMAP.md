@@ -23,6 +23,7 @@ run.** See [BUILD_STATUS.md](BUILD_STATUS.md).
 - [x] **Engine compiles** — Swift 6.0.3 on Linux, green in CI
 - [x] **Engine tests pass** — 131 tests, 0 failures
 - [x] **App targets compile** — Xcode 26.6, unsigned simulator builds in CI
+- [x] **Zero compiler warnings** on both targets
 - [ ] **Apps actually run** — never launched, in a simulator or otherwise
 - [ ] **Validated on real hardware** — see [DEVICE_TESTING.md](DEVICE_TESTING.md)
 
@@ -33,8 +34,6 @@ The next session's work, in priority order.
 1. **Launch the apps.** They compile; that is not the same as working. Run
    both in a simulator and see whether the composition draws, the onboarding
    flows, and the debug inspectors agree with the engine.
-2. **Read the compiler warnings.** The build passes and nobody has looked;
-   `apple.yml` prints a count and the top offenders to the run summary.
 2. **Run the device checklist.** Nothing about compass behaviour on hardware
    is currently verified.
 3. **Widen the birth-place table**, or add offline geocoding. Manual longitude
@@ -81,7 +80,6 @@ backend, accounts, or any analytics carrying personal data.
 | Limitation | Where |
 | --- | --- |
 | Apps never launched | [BUILD_STATUS.md](BUILD_STATUS.md) |
-| Compiler warnings unaudited | [BUILD_STATUS.md](BUILD_STATUS.md) |
 | Sensor behaviour unvalidated | [DEVICE_TESTING.md](DEVICE_TESTING.md) |
 | Favourable elements use one school (扶抑法) | [ALIGNMENT_ENGINE.md](ALIGNMENT_ENGINE.md) |
 | Eight 45° sectors, not 24 mountains | [TRADITIONAL_SYSTEMS.md](TRADITIONAL_SYSTEMS.md) |

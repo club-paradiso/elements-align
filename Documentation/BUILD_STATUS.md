@@ -5,7 +5,7 @@
 | Engine builds | **Yes** — `swift build`, Swift 6.0.3, Linux |
 | Engine tests | **Yes** — 131 tests, 0 failures, ~1.4 s |
 | iOS / watchOS app targets | **Yes** — `xcodebuild`, Xcode 26.6, simulator |
-| Compiler warnings | Not yet audited |
+| Compiler warnings | **Zero** on both targets |
 | Sensor behaviour on hardware | **Not validated** — no device |
 
 Two workflows.
@@ -115,11 +115,14 @@ explicitly rather than hoping.
 What this does **not** mean: that the apps behave correctly. Compiling is not
 running, and nothing here has been launched in a simulator, let alone worn.
 
-## What is still unverified
+Warnings are clean too. Both targets build with **no Swift compiler
+warnings**; the single notice each emits is Xcode's App Intents metadata
+extractor observing that the app does not link `AppIntents.framework`, which
+is correct — there are no Siri shortcuts. `apple.yml` prints the count and the
+top offenders to both the run summary and the job log on every run, so a
+regression here is visible rather than buried.
 
-**Compiler warnings.** The build passes, but nobody has read what it warns
-about. `apple.yml` now prints a count and the top offenders to the run summary
-so that stops being invisible.
+## What is still unverified
 
 **Runtime behaviour.** The apps have never been launched. Compilation says the
 types line up, not that the composition draws, the onboarding flows, or the
