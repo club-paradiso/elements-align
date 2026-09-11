@@ -55,8 +55,9 @@ public enum CompassSector: Int, CaseIterable, Hashable, Sendable {
     }
 
     public var localizationKey: String {
-        "direction.\(["north", "northeast", "east", "southeast",
-                      "south", "southwest", "west", "northwest"][rawValue])"
+        let names = ["north", "northeast", "east", "southeast",
+                     "south", "southwest", "west", "northwest"]
+        return "direction.\(names[rawValue])"
     }
 
     /// The sector a heading falls in. Sector centres sit at multiples of 45
