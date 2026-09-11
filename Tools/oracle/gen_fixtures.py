@@ -31,7 +31,12 @@ for y in (1950, 1984, 2000, 2025, 2026, 2050):
         })
 
 # --- delta T ---------------------------------------------------------------
-fx["deltaT"] = [{"year": y, "month": 6, "seconds": round(delta_t_seconds(y, 6), 4)}
+# Stored at 9 decimals, like every other numeric fixture here. The precision
+# a fixture is written at has to exceed the tolerance the test asserts with,
+# or the rounding itself fails the test: these were stored at 4 decimals
+# against a 1e-6 assertion, and every Delta-T case failed on the rounding
+# rather than on any disagreement with the engine.
+fx["deltaT"] = [{"year": y, "month": 6, "seconds": round(delta_t_seconds(y, 6), 9)}
                 for y in (1900, 1925, 1950, 1975, 1990, 2000, 2010, 2026, 2049)]
 
 # --- equation of time ------------------------------------------------------
