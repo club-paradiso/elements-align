@@ -15,23 +15,26 @@ decisions.
 
 ## Start here
 
-The engine builds and its 104 tests pass, green in CI on every push. **The iOS
-and watchOS app targets have never been compiled** — they need Xcode, and CI
-covers the package only. Read
-[Documentation/BUILD_STATUS.md](Documentation/BUILD_STATUS.md) before trusting
-the app layer to build.
+Everything compiles. The engine and its 131 tests are green in CI on every
+push; both app targets build for the simulators on a macOS runner. **Nothing
+has been run** — not in a simulator, not on a watch. Compiling says the types
+line up, not that the composition draws or the haptics fire.
 
 This repository was written without a Swift toolchain available. What that cost
-and what caught it is recorded in BUILD_STATUS.md; the short version is that
-validating the mathematics independently worked completely, and treating a
-parser as a substitute for a compiler did not.
+and what caught it is recorded in
+[Documentation/BUILD_STATUS.md](Documentation/BUILD_STATUS.md); the short
+version is that validating the mathematics independently worked completely,
+treating a parser as a substitute for a compiler did not, and the SwiftUI
+turned out fine because availability was checked against Apple's published
+data rather than recalled.
 
 ## Commands
 
 ```
-make test       # swift test on the engine — no Xcode needed, works on Linux
-make build      # swift build on the engine
-make syntax     # tree-sitter parse check of every Swift file (no toolchain)
+make test         # swift test on the engine — no Xcode needed, works on Linux
+make build        # swift build on the engine
+make apple-build  # unsigned simulator build of both app targets (macOS)
+make syntax       # tree-sitter parse check of every Swift file (no toolchain)
 make fixtures   # regenerate golden test fixtures from the reference oracle
 make vsop       # regenerate the truncated VSOP87 Swift tables
 make project    # XcodeGen → ElementsAlign.xcodeproj (macOS only)
@@ -141,14 +144,14 @@ hardware is. Do not assert availability from memory; check.
 
 ## Current milestone
 
-**Milestone 1 — Directional Alignment Prototype.** Engine green; app targets
-uncompiled; not hardware-validated.
+**Milestone 1 — Directional Alignment Prototype.** Everything compiles;
+nothing has been run.
 
 Next, in order:
 
-1. Build the app targets in Xcode. Expect errors concentrated in SwiftUI.
+1. Launch both apps in a simulator and see whether they behave.
 2. Run [Documentation/DEVICE_TESTING.md](Documentation/DEVICE_TESTING.md).
-3. Widen the birth-place table, or add offline geocoding.
+3. Read the compiler warnings — `apple.yml` prints them to the run summary.
 
 See [Documentation/ROADMAP.md](Documentation/ROADMAP.md).
 

@@ -6,8 +6,9 @@ repository should be read as validated. That is what this document is for.
 
 ## Before anything else
 
-The app targets have never been compiled — CI covers the engine package only.
-Get them building in Xcode first; see [BUILD_STATUS.md](BUILD_STATUS.md).
+The app targets compile (CI builds both for the simulators), but they have
+never been *launched*. Run them in a simulator before putting one on a wrist;
+see [BUILD_STATUS.md](BUILD_STATUS.md).
 
 ## Setup
 

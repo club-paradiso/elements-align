@@ -26,22 +26,23 @@ ALIGN.
 
 ## Status
 
-**Milestone 1 — Directional Alignment Prototype.** The engine builds and its
-tests pass; the app targets have not been compiled.
+**Milestone 1 — Directional Alignment Prototype.** Everything compiles and the
+engine's tests pass. Nothing has been run on a device.
 
 | | |
 | --- | --- |
 | Engine builds | **Yes** — `swift build`, Swift 6.0.3, Linux |
-| Engine tests | **Yes** — 104 tests, 0 failures |
-| CI | Green on every push and PR |
-| iOS / watchOS app targets | **Not compiled** — need Xcode |
+| Engine tests | **Yes** — 131 tests, 0 failures |
+| iOS / watchOS app targets | **Yes** — `xcodebuild`, Xcode 26.6, simulator |
+| Runtime behaviour | **Not verified** — never launched |
 | Sensor behaviour on hardware | **Not validated** — no device |
 
 The whole of this repository was written without a Swift toolchain available,
-so nothing in it had ever been through a compiler until CI was added. Getting
-from there to green took two commits, and what went wrong is recorded in
+so nothing in it had ever been through a compiler until CI was added. The
+engine took two commits to go green; the app targets built clean on the first
+run. What that experiment showed, in both directions, is recorded in
 [Documentation/BUILD_STATUS.md](Documentation/BUILD_STATUS.md) rather than
-quietly fixed.
+quietly tidied away.
 
 ## How the maths is verified
 
@@ -91,11 +92,14 @@ The apps need macOS. The `.xcodeproj` is generated rather than committed:
 
 ```sh
 brew install xcodegen
-make project
-open ElementsAlign.xcodeproj
+make apple-build            # unsigned simulator build of both targets
+make project && open ElementsAlign.xcodeproj
 ```
 
-Set `DEVELOPMENT_TEAM` locally; it is deliberately empty in `project.yml`.
+CI builds both app targets on a macOS runner, but only by hand or when a pull
+request touches the app layer — a macOS runner costs roughly ten times a Linux
+one. Set `DEVELOPMENT_TEAM` locally for device builds; it is deliberately
+empty in `project.yml`.
 
 ## Architecture
 
@@ -167,12 +171,12 @@ properties are asserted in tests. Reduce Motion collapses every duration.
 
 ## Next
 
-1. Build the app targets in Xcode — CI covers the package, which is where the
-   correctness lives, but not the SwiftUI.
+1. Launch the apps in a simulator. They compile, which says the types line up,
+   not that the composition draws or the onboarding flows.
 2. Run the hardware checklist in
    [Documentation/DEVICE_TESTING.md](Documentation/DEVICE_TESTING.md) —
    nothing about compass behaviour on a real watch is currently verified.
-3. Widen the birth-place table, or add offline geocoding.
+3. Read the compiler warnings; the build passes but nobody has looked.
 
 [Documentation/ROADMAP.md](Documentation/ROADMAP.md)
 

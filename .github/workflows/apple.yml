@@ -63,10 +63,26 @@ jobs:
 
       - name: Build iOS app
         run: |
+          set -o pipefail
           xcodebuild -project ElementsAlign.xcodeproj \
             -scheme ElementsAlign \
             -configuration Debug \
             -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath DerivedData \
             CODE_SIGNING_ALLOWED=NO \
-            build
+            build | tee ios-build.log
+
+      # Reported rather than enforced. The build passes today; nobody has yet
+      # read what it warns about, and a count in the summary is how that stops
+      # being invisible.
+      - name: Warning summary
+        if: always()
+        run: |
+          count=$(grep -c "warning:" ios-build.log || true)
+          echo "### Compiler warnings: ${count}" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${count}" != "0" ]; then
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            grep -o "warning: .*" ios-build.log | sort | uniq -c | sort -rn \
+              | head -40 >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi

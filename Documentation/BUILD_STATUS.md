@@ -3,18 +3,26 @@
 | | |
 | --- | --- |
 | Engine builds | **Yes** — `swift build`, Swift 6.0.3, Linux |
-| Engine tests | **Yes** — 104 tests, 0 failures, ~1.6 s |
-| CI | Green on every push and PR |
-| iOS / watchOS app targets | **Not compiled** — need Xcode |
+| Engine tests | **Yes** — 131 tests, 0 failures, ~1.4 s |
+| iOS / watchOS app targets | **Yes** — `xcodebuild`, Xcode 26.6, simulator |
+| Compiler warnings | Not yet audited |
 | Sensor behaviour on hardware | **Not validated** — no device |
 
-`.github/workflows/engine.yml` runs `swift build` and `swift test` against
+Two workflows.
+
+`engine.yml` runs `swift build` and `swift test` against
 `Packages/ElementsAlign` in a `swift:6.0-noble` container on every push to
 `main` and every pull request. No Xcode, no macOS runner, no third-party
 actions.
 
-    make test        # the same thing locally
-    make syntax      # parse check, needs no toolchain at all
+`apple.yml` builds both app targets for the simulators, unsigned, on a macOS
+runner. It does **not** run on every commit: a macOS runner costs roughly ten
+times a Linux one, so it triggers by hand or when a pull request touches
+`Apps/`, `project.yml`, the package manifest, or the workflow itself.
+
+    make test          # the engine, the same thing locally
+    make apple-build   # both app targets (macOS)
+    make syntax        # parse check, needs no toolchain at all
 
 ## How this repository got here
 
@@ -89,24 +97,33 @@ The honest summary: validating the *mathematics* independently was worth the
 effort and paid off completely. A parser is not a compiler, and treating one
 as a substitute is where this went wrong.
 
+## The app targets
+
+They now compile. This was the repository's largest open question, and the
+answer turned out to be better than expected: roughly 1,500 lines of SwiftUI
+written without a compiler built clean on the first run, on Xcode 26.6, with
+`SWIFT_STRICT_CONCURRENCY: complete` and the watch app correctly embedded at
+`ElementsAlign.app/Watch/ElementsAlignWatch.app`.
+
+The categories of error this document previously predicted -- `Canvas`
+signatures, `onChange` arity, `@Observable` and `@MainActor` interaction,
+strict concurrency -- did not materialise. Checking Apple's published
+availability data instead of working from memory is the most likely reason,
+along with marking the app entry points and `RootView` `@MainActor`
+explicitly rather than hoping.
+
+What this does **not** mean: that the apps behave correctly. Compiling is not
+running, and nothing here has been launched in a simulator, let alone worn.
+
 ## What is still unverified
 
-**The app targets have never been compiled.** They need Xcode. CI covers the
-package only, which is where the correctness lives but not where the SwiftUI
-is. On macOS:
+**Compiler warnings.** The build passes, but nobody has read what it warns
+about. `apple.yml` now prints a count and the top offenders to the run summary
+so that stops being invisible.
 
-    brew install xcodegen
-    make project
-    open ElementsAlign.xcodeproj
-
-Expect errors there. Likely categories, in rough order:
-
-1. SwiftUI API details — `Canvas` and `GraphicsContext` signatures, `onChange`
-   arity, `ToolbarItem` placements.
-2. `@Observable` and `@MainActor` interaction, particularly `@Bindable` in the
-   watch views.
-3. Strict concurrency; `project.yml` sets `SWIFT_STRICT_CONCURRENCY: complete`,
-   which may need relaxing to `targeted` initially.
+**Runtime behaviour.** The apps have never been launched. Compilation says the
+types line up, not that the composition draws, the onboarding flows, or the
+haptics fire.
 
 **Sensor behaviour on real hardware.** Nothing about compass behaviour has
 been validated on a device. See [DEVICE_TESTING.md](DEVICE_TESTING.md) for the
