@@ -35,7 +35,13 @@ let package = Package(
             dependencies: ["ElementsCore"],
             resources: [.copy("Fixtures")]
         ),
-        .testTarget(name: "ElementsSpatialTests", dependencies: ["ElementsSpatial"]),
-        .testTarget(name: "ElementsDesignTests", dependencies: ["ElementsDesign"]),
+        // ElementsCore is listed explicitly even though it arrives
+        // transitively: these test files import it directly, and relying on a
+        // transitive module being in the import search path is a failure mode
+        // that only shows up at build time.
+        .testTarget(name: "ElementsSpatialTests",
+                    dependencies: ["ElementsSpatial", "ElementsCore"]),
+        .testTarget(name: "ElementsDesignTests",
+                    dependencies: ["ElementsDesign", "ElementsCore"]),
     ]
 )
