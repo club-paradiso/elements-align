@@ -1,0 +1,114 @@
+# Compiles the iOS and watchOS app targets.
+#
+# Separate from engine.yml because it needs a macOS runner, which costs roughly
+# ten times a Linux one. It is therefore NOT run on every commit: only by hand,
+# or when a pull request actually touches the app layer or the project spec.
+# The engine is covered on Linux on every push, and that is where the
+# correctness lives.
+#
+# Unsigned simulator builds: no signing identity, no provisioning profile, no
+# DEVELOPMENT_TEAM. Nothing here needs a paid account.
+
+name: Apple apps
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'Apps/**'
+      - 'project.yml'
+      - 'Packages/ElementsAlign/Package.swift'
+      - '.github/workflows/apple.yml'
+
+concurrency:
+  group: apple-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: xcodebuild (iOS + watchOS simulators)
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate project
+        run: xcodegen generate
+
+      - name: Available SDKs and schemes
+        run: |
+          xcodebuild -showsdks
+          xcodebuild -list -project ElementsAlign.xcodeproj
+
+      # Built first: the watch app is the product, and it is embedded in the
+      # iOS app, so a failure here would otherwise surface as a confusing
+      # failure of the iOS build.
+      - name: Build watchOS app
+        run: |
+          set -o pipefail
+          xcodebuild -project ElementsAlign.xcodeproj \
+            -scheme ElementsAlignWatch \
+            -configuration Debug \
+            -destination 'generic/platform=watchOS Simulator' \
+            -derivedDataPath DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            build | tee watch-build.log
+
+      - name: Build iOS app
+        run: |
+          set -o pipefail
+          xcodebuild -project ElementsAlign.xcodeproj \
+            -scheme ElementsAlign \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            build | tee ios-build.log
+
+      # Reported rather than enforced. The build passes today; nobody has yet
+      # read what it warns about, and a count is how that stops being
+      # invisible.
+      #
+      # Written to stdout as well as the step summary. The summary is only
+      # readable in the web UI, and the raw log is only downloadable from a
+      # blob host that some networks block -- so a tool reading the job log is
+      # otherwise unable to see the one thing this step exists to report.
+      # Printing it in the last few lines of the log fixes that.
+      - name: Warning summary
+        if: always()
+        run: |
+          summarise() {
+            local label="$1" file="$2"
+            if [ ! -f "$file" ]; then
+              printf '%s: build did not run\n' "$label"
+              return
+            fi
+            local count
+            count=$(grep -c "warning:" "$file" || true)
+            printf '%s: %s warning(s)\n' "$label" "$count"
+            if [ "$count" != "0" ]; then
+              grep -o "warning: .*" "$file" | sort | uniq -c | sort -rn | head -25
+            fi
+          }
+
+          {
+            echo "=== COMPILER WARNING SUMMARY ==="
+            summarise watchOS watch-build.log
+            summarise iOS ios-build.log
+            echo "=== END WARNING SUMMARY ==="
+          } | tee warning-summary.txt
+
+          {
+            echo '### Compiler warnings'
+            echo '```'
+            cat warning-summary.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

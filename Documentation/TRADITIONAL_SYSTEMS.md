@@ -116,6 +116,15 @@ Seoul sits about 8.5° west of the 135°E meridian its clocks follow — roughly
 34 minutes of solar time. Near an hour boundary that is the difference between
 two branches, which is why this is not optional in practice.
 
+Before any of that, the wall-clock reading itself has to become an instant,
+and the offset to use is the one that was in force on the date — not today's.
+Korea ran on UTC+8:30 from 1954 to 1961 and observed summer time in 1950,
+1960, 1987 and 1988. A 1955 Seoul birth resolved against modern KST lands half
+an hour out, which is again enough to cross an hour boundary. `CivilBirthTime`
+resolves through the tz database and reports the two readings that cannot
+resolve cleanly: one inside a spring-forward gap never occurred, and one
+inside a fall-back repeat occurred twice.
+
 ### The late Zi hour — a real fork
 
 Two schools disagree about which day a 23:00–23:59 birth belongs to:

@@ -217,6 +217,10 @@ Recorded rather than hidden:
 - **Solar term precision** is about ±10 seconds. Charts within 30 minutes of a
   boundary are flagged, because the uncertainty there is the *user's* recorded
   time, not ours.
-- **Time zones.** Onboarding interprets the birth date and time in the
-  device's current zone. Resolving the historical zone for the birth place and
-  date is a roadmap item.
+- **Daylight-saving edges.** A birth time is resolved against the zone's
+  historical offsets, so Korea's UTC+8:30 years and its 1987-88 summer time
+  are applied correctly. Two readings still cannot resolve cleanly: one that
+  fell in a spring-forward gap never occurred, and one in a fall-back repeat
+  occurred twice. The engine reports both rather than choosing silently; for
+  a repeat it takes the earlier instant, which is a product decision the
+  interface states.

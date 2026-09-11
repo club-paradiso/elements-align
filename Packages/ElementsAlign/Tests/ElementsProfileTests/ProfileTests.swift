@@ -20,6 +20,124 @@ final class ProfileTests: XCTestCase {
         try test(ProfileStore(defaults: defaults), defaults)
     }
 
+    /// A profile whose birth is a wall-clock reading rather than a bare
+    /// instant. 1955 Seoul is the case that matters: Korea ran on UTC+8:30 at
+    /// the time, so an instant frozen against modern KST would be half an hour
+    /// out.
+    private func civilProfile(
+        year: Int = 1955, month: Int = 6, day: Int = 15,
+        hour: Int = 9, minute: Int = 0,
+        zone: String = "Asia/Seoul"
+    ) -> PersonalProfile {
+        PersonalProfile(birth: BirthMoment(
+            civil: CivilBirthTime(year: year, month: month, day: day,
+                                  hour: hour, minute: minute,
+                                  timeZoneIdentifier: zone),
+            location: GeoLocation(latitude: 37.566, longitude: 126.978),
+            precision: .exact), polarity: .yin)
+    }
+
+    func testWallClockReadingSurvivesARoundTrip() throws {
+        try withStore { store, _ in
+            let original = civilProfile()
+            XCTAssertTrue(store.save(original))
+            let loaded = try XCTUnwrap(store.load())
+            XCTAssertEqual(loaded, original)
+            XCTAssertEqual(loaded.birth.civil?.timeZoneIdentifier, "Asia/Seoul")
+            XCTAssertEqual(loaded.birth.civil?.year, 1955)
+            // Re-resolved, not read back from a frozen instant.
+            XCTAssertEqual(loaded.birth.civil?.utcOffsetSeconds(), 9 * 3600 + 1800)
+        }
+    }
+
+    func testALoadedReadingIsResolvedRatherThanReplayed() throws {
+        // The stored instant is what the reading resolved to when saved. On
+        // load the reading is resolved again, so a tz database correction
+        // would change the answer instead of being frozen out.
+        try withStore { store, defaults in
+            XCTAssertTrue(store.save(civilProfile()))
+            let data = try XCTUnwrap(defaults.data(forKey: "elements.profile.v1"))
+            var json = try XCTUnwrap(
+                JSONSerialization.jsonObject(with: data) as? [String: Any])
+            // Corrupt only the cached instant, leaving the reading intact.
+            json["birthInstant"] = 0.0
+            defaults.set(try JSONSerialization.data(withJSONObject: json),
+                         forKey: "elements.profile.v1")
+
+            let loaded = try XCTUnwrap(store.load())
+            XCTAssertEqual(loaded.birth.instant,
+                           civilProfile().birth.instant,
+                           "the reading should drive the instant, not the cached value")
+        }
+    }
+
+    func testProfilesWithoutAWallClockReadingStillLoad() throws {
+        // Records written before the reading existed carry only the instant.
+        try withStore { store, _ in
+            let original = profile()
+            XCTAssertTrue(store.save(original))
+            let loaded = try XCTUnwrap(store.load())
+            XCTAssertEqual(loaded, original)
+            XCTAssertNil(loaded.birth.civil)
+        }
+    }
+
+    func testPartialOrUnresolvableReadingsAreRejectedNotDowngraded() throws {
+        // Silently reverting to the cached instant would hand back a less
+        // accurate chart without saying so. Damaged records fail closed.
+        let base = try XCTUnwrap(
+            JSONSerialization.jsonObject(
+                with: try JSONEncoder().encode(ProfileRecord(civilProfile())))
+            as? [String: Any])
+
+        var missingZone = base
+        missingZone["birthTimeZone"] = nil
+        var missingField = base
+        missingField["birthMinute"] = nil
+        var badZone = base
+        badZone["birthTimeZone"] = "Not/AZone"
+        var badMonth = base
+        badMonth["birthMonth"] = 13
+
+        for (label, json) in [("missing zone", missingZone), ("missing field", missingField),
+                              ("unresolvable zone", badZone), ("month 13", badMonth)] {
+            let data = try JSONSerialization.data(withJSONObject: json)
+            let record = try JSONDecoder().decode(ProfileRecord.self, from: data)
+            XCTAssertThrowsError(try record.validatedProfile(), label) { error in
+                XCTAssertEqual(error as? ProfileDataError, .invalidProfile, label)
+            }
+        }
+    }
+
+    func testDaylightEdgeReadingsRoundTrip() throws {
+        // A reading inside a spring-forward gap, and one inside a fall-back
+        // repeat. Both must survive storage with their resolution intact.
+        try withStore { store, _ in
+            let skipped = civilProfile(year: 1987, month: 5, day: 10, hour: 2, minute: 30)
+            XCTAssertTrue(store.save(skipped))
+            let loadedSkipped = try XCTUnwrap(store.load())
+            if case .skipped = loadedSkipped.birth.timeResolution {} else {
+                XCTFail("expected a skipped reading, got \(loadedSkipped.birth.timeResolution)")
+            }
+        }
+        try withStore { store, _ in
+            let repeated = civilProfile(year: 1987, month: 10, day: 11, hour: 2, minute: 30)
+            XCTAssertTrue(store.save(repeated))
+            let loadedRepeated = try XCTUnwrap(store.load())
+            if case .ambiguous = loadedRepeated.birth.timeResolution {} else {
+                XCTFail("expected an ambiguous reading")
+            }
+        }
+    }
+
+    func testSnapshotCarriesTheWallClockReadingToTheWatch() throws {
+        let snapshot = try ProfileSnapshot(profile: civilProfile())
+        let decoded = try ProfileSnapshot.decode(try snapshot.encoded())
+        let delivered = try XCTUnwrap(try decoded.validatedProfile())
+        XCTAssertEqual(delivered.birth.civil?.timeZoneIdentifier, "Asia/Seoul")
+        XCTAssertEqual(delivered, civilProfile())
+    }
+
     func testRoundTripPreservesAllCalculationInputs() throws {
         for precision in [ChartPrecision.exact, .dayOnly] {
             let original = profile(precision: precision)

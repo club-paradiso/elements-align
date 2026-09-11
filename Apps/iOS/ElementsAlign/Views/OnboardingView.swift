@@ -66,8 +66,19 @@ struct OnboardingView: View {
         case .birthPlace:
             step(title: "onboarding.birthPlace.title",
                  note: "onboarding.birthPlace.note") {
-                BirthPlacePicker(selection: $model.place,
-                                 manualLongitude: $model.manualLongitude)
+                VStack(spacing: 10) {
+                    BirthPlacePicker(selection: $model.place,
+                                     manualLongitude: $model.manualLongitude,
+                                     manualTimeZone: $model.manualTimeZoneIdentifier)
+                    // The offset actually applied. Worth showing: it is how a
+                    // user born in Korea in 1955 finds out the app knows the
+                    // country was on UTC+8:30 at the time.
+                    if let offset = model.utcOffsetDescription {
+                        Text("\(model.timeZoneIdentifier)  ·  \(offset)")
+                            .font(.caption.monospacedDigit())
+                            .foregroundStyle(.secondary)
+                    }
+                }
             }
 
         case .polarity:
@@ -134,6 +145,7 @@ struct OnboardingView: View {
 private struct BirthPlacePicker: View {
     @Binding var selection: BirthPlace?
     @Binding var manualLongitude: Double?
+    @Binding var manualTimeZone: String
     @State private var query = ""
     @State private var usesManual = false
     @State private var longitudeText = ""
@@ -153,6 +165,15 @@ private struct BirthPlacePicker: View {
                     .onChange(of: longitudeText) { _, text in
                         manualLongitude = Double(text).map { min(max($0, -180), 180) }
                     }
+                // A longitude alone cannot resolve a wall-clock reading: we
+                // also have to know whose clocks were being read.
+                Picker(LocalizedStringKey("onboarding.birthPlace.timeZone"),
+                       selection: $manualTimeZone) {
+                    ForEach(TimeZone.knownTimeZoneIdentifiers, id: \.self) { identifier in
+                        Text(identifier).tag(identifier)
+                    }
+                }
+                .pickerStyle(.navigationLink)
             } else {
                 TextField(LocalizedStringKey("onboarding.birthPlace.search"), text: $query)
                     .textFieldStyle(.roundedBorder)
@@ -161,7 +182,12 @@ private struct BirthPlacePicker: View {
                         selection = place
                     } label: {
                         HStack {
-                            Text(place.displayName)
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(place.displayName)
+                                Text(place.timeZoneIdentifier)
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
                             Spacer()
                             if selection?.id == place.id {
                                 Image(systemName: "checkmark")

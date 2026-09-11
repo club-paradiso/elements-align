@@ -87,6 +87,77 @@ for label, jd, lon in cases:
                             for k in ("year", "month", "day", "hour")),
         })
 
+# --- historical time zones -------------------------------------------------
+# Generated from the system tz database via Python's zoneinfo, which is the
+# same data Foundation reads. These are the cases that break a naive
+# "interpret it in the device's zone" conversion.
+from zoneinfo import ZoneInfo
+import datetime as _dt
+
+def _resolve(y, mo, d, h, mi, zone_id):
+    """Mirror of CivilBirthTime.resolve(): enumerate self-consistent offsets."""
+    zone = ZoneInfo(zone_id)
+    naive = _dt.datetime(y, mo, d, h, mi, tzinfo=_dt.timezone.utc)
+    offsets = set()
+    for delta in (-86400, -3600, 0, 3600, 86400):
+        probe = naive + _dt.timedelta(seconds=delta)
+        offsets.add(int(probe.astimezone(zone).utcoffset().total_seconds()))
+    consistent = []
+    for off in offsets:
+        cand = naive - _dt.timedelta(seconds=off)
+        if int(cand.astimezone(zone).utcoffset().total_seconds()) == off:
+            consistent.append(cand)
+    consistent.sort()
+    if len(consistent) == 1:
+        return "unique", [consistent[0]]
+    if len(consistent) >= 2:
+        return "ambiguous", [consistent[0], consistent[-1]]
+    skipped = max(naive - _dt.timedelta(seconds=o) for o in offsets)
+    return "skipped", [skipped]
+
+_tz_cases = [
+    # Korea ran on UTC+8:30 from 1954 to 1961.
+    (1955, 6, 15, 9, 0, "Asia/Seoul"),
+    (1960, 1, 20, 4, 30, "Asia/Seoul"),
+    # Either side of the 1961 return to UTC+9.
+    (1961, 6, 1, 12, 0, "Asia/Seoul"),
+    (1961, 9, 1, 12, 0, "Asia/Seoul"),
+    # Korean summer time.
+    (1987, 7, 1, 12, 0, "Asia/Seoul"),
+    (1988, 7, 1, 12, 0, "Asia/Seoul"),
+    # Spring forward 1987: 02:00 -> 03:00, so 02:30 never existed.
+    (1987, 5, 10, 2, 30, "Asia/Seoul"),
+    # Fall back 1987: 03:00 -> 02:00, so 02:30 happened twice.
+    (1987, 10, 11, 2, 30, "Asia/Seoul"),
+    # Ordinary modern readings.
+    (1990, 5, 15, 14, 30, "Asia/Seoul"),
+    (2026, 3, 15, 12, 0, "Asia/Seoul"),
+    # Other zones, including US DST edges and a half-hour offset.
+    (1984, 2, 2, 12, 0, "America/New_York"),
+    (2023, 3, 12, 2, 30, "America/New_York"),
+    (2023, 11, 5, 1, 30, "America/New_York"),
+    (2000, 1, 1, 0, 0, "Asia/Tokyo"),
+    (1975, 8, 20, 18, 45, "Europe/London"),
+    (1995, 12, 25, 6, 15, "Asia/Kolkata"),
+    (2010, 7, 4, 23, 59, "Australia/Sydney"),
+]
+
+fx["timeZones"] = []
+for y, mo, d, h, mi, zone_id in _tz_cases:
+    kind, instants = _resolve(y, mo, d, h, mi, zone_id)
+    zone = ZoneInfo(zone_id)
+    entry = {
+        "year": y, "month": mo, "day": d, "hour": h, "minute": mi,
+        "timeZone": zone_id, "kind": kind,
+        "instant": instants[0].astimezone(_dt.timezone.utc)
+                   .strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "offsetSeconds": int(instants[0].astimezone(zone).utcoffset().total_seconds()),
+    }
+    if kind == "ambiguous":
+        entry["laterInstant"] = instants[1].astimezone(_dt.timezone.utc) \
+            .strftime("%Y-%m-%dT%H:%M:%SZ")
+    fx["timeZones"].append(entry)
+
 # --- life gua and ba zhai --------------------------------------------------
 fx["lifeGua"] = [{"baziYear": y, "polarity": pol, "gua": E.life_gua(y, pol)}
                  for y in range(1960, 2031) for pol in (E.Polarity.YANG, E.Polarity.YIN)]

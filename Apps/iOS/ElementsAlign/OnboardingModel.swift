@@ -25,6 +25,9 @@ public final class OnboardingModel {
     public var birthTimeIsKnown = true
     public var place: BirthPlace? = BirthPlace.table.first
     public var manualLongitude: Double?
+    /// Zone for a manually entered longitude. A longitude alone cannot resolve
+    /// a wall-clock reading: we also have to know whose clocks were being read.
+    public var manualTimeZoneIdentifier: String = TimeZone.current.identifier
     public var polarity: Polarity = .yang
 
     private let store: ProfileStore
@@ -45,35 +48,59 @@ public final class OnboardingModel {
         return place?.location ?? GeoLocation(latitude: 0, longitude: 0)
     }
 
-    /// Combines the date and time the user chose into a single instant.
+    /// IANA zone the wall-clock reading should be resolved against.
+    public var timeZoneIdentifier: String {
+        manualLongitude != nil
+            ? manualTimeZoneIdentifier
+            : (place?.timeZoneIdentifier ?? TimeZone.current.identifier)
+    }
+
+    /// The wall-clock reading the user entered, with the zone it belongs to.
     ///
-    /// The pickers are interpreted in the device's current time zone. That is
-    /// an approximation for someone born in a different zone from the one they
-    /// live in now, and a known V1 limitation recorded in the roadmap: the
-    /// right fix is to resolve the historical zone for the birth place and
-    /// date, including the era's daylight-saving rules.
-    public var birthInstant: Date {
-        let calendar = Calendar(identifier: .gregorian)
+    /// The pickers are read for their calendar fields only. Taking the `Date`
+    /// they produce would bake in the *device's* current zone, which is the
+    /// bug this replaced: someone born in Seoul in 1955 was on UTC+8:30, and
+    /// resolving them against modern KST put their chart half an hour out --
+    /// enough to cross an hour-pillar boundary.
+    public var civilBirthTime: CivilBirthTime {
+        var calendar = Calendar(identifier: .gregorian)
+        // Read the pickers in the zone they were displayed in, so the fields
+        // come back as the user saw them.
+        calendar.timeZone = TimeZone.current
         let day = calendar.dateComponents([.year, .month, .day], from: birthDate)
         let time = birthTimeIsKnown
             ? calendar.dateComponents([.hour, .minute], from: birthTime)
             : DateComponents(hour: 12, minute: 0)
 
-        var combined = DateComponents()
-        combined.year = day.year
-        combined.month = day.month
-        combined.day = day.day
-        combined.hour = time.hour
-        combined.minute = time.minute
-        return calendar.date(from: combined) ?? birthDate
+        return CivilBirthTime(year: day.year ?? 1990,
+                              month: day.month ?? 1,
+                              day: day.day ?? 1,
+                              hour: time.hour ?? 12,
+                              minute: time.minute ?? 0,
+                              timeZoneIdentifier: timeZoneIdentifier)
+    }
+
+    public var birthMoment: BirthMoment {
+        BirthMoment(civil: civilBirthTime,
+                    location: location,
+                    precision: birthTimeIsKnown ? .exact : .dayOnly)
+    }
+
+    /// How the reading resolved, so the summary can say when it did not
+    /// resolve cleanly.
+    public var timeResolution: CivilTimeResolution { birthMoment.timeResolution }
+
+    /// The offset actually applied, formatted for display. Worth showing:
+    /// "UTC+8:30" is how a user finds out the app knows about 1955.
+    public var utcOffsetDescription: String? {
+        guard let seconds = civilBirthTime.utcOffsetSeconds() else { return nil }
+        let sign = seconds < 0 ? "-" : "+"
+        let total = abs(seconds) / 60
+        return String(format: "UTC%@%d:%02d", sign, total / 60, total % 60)
     }
 
     public var profile: PersonalProfile {
-        PersonalProfile(
-            birth: BirthMoment(instant: birthInstant,
-                               location: location,
-                               precision: birthTimeIsKnown ? .exact : .dayOnly),
-            polarity: polarity)
+        PersonalProfile(birth: birthMoment, polarity: polarity)
     }
 
     private var cachedChart: (profile: PersonalProfile, chart: PersonalChart)?

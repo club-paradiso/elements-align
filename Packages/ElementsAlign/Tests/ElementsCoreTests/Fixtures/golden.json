@@ -1557,6 +1557,197 @@
    "name": "JiMaoBingZiWuWuRenZi"
   }
  ],
+ "timeZones": [
+  {
+   "year": 1955,
+   "month": 6,
+   "day": 15,
+   "hour": 9,
+   "minute": 0,
+   "timeZone": "Asia/Seoul",
+   "kind": "unique",
+   "instant": "1955-06-14T23:30:00Z",
+   "offsetSeconds": 34200
+  },
+  {
+   "year": 1960,
+   "month": 1,
+   "day": 20,
+   "hour": 4,
+   "minute": 30,
+   "timeZone": "Asia/Seoul",
+   "kind": "unique",
+   "instant": "1960-01-19T20:00:00Z",
+   "offsetSeconds": 30600
+  },
+  {
+   "year": 1961,
+   "month": 6,
+   "day": 1,
+   "hour": 12,
+   "minute": 0,
+   "timeZone": "Asia/Seoul",
+   "kind": "unique",
+   "instant": "1961-06-01T03:30:00Z",
+   "offsetSeconds": 30600
+  },
+  {
+   "year": 1961,
+   "month": 9,
+   "day": 1,
+   "hour": 12,
+   "minute": 0,
+   "timeZone": "Asia/Seoul",
+   "kind": "unique",
+   "instant": "1961-09-01T03:00:00Z",
+   "offsetSeconds": 32400
+  },
+  {
+   "year": 1987,
+   "month": 7,
+   "day": 1,
+   "hour": 12,
+   "minute": 0,
+   "timeZone": "Asia/Seoul",
+   "kind": "unique",
+   "instant": "1987-07-01T02:00:00Z",
+   "offsetSeconds": 36000
+  },
+  {
+   "year": 1988,
+   "month": 7,
+   "day": 1,
+   "hour": 12,
+   "minute": 0,
+   "timeZone": "Asia/Seoul",
+   "kind": "unique",
+   "instant": "1988-07-01T02:00:00Z",
+   "offsetSeconds": 36000
+  },
+  {
+   "year": 1987,
+   "month": 5,
+   "day": 10,
+   "hour": 2,
+   "minute": 30,
+   "timeZone": "Asia/Seoul",
+   "kind": "skipped",
+   "instant": "1987-05-09T17:30:00Z",
+   "offsetSeconds": 36000
+  },
+  {
+   "year": 1987,
+   "month": 10,
+   "day": 11,
+   "hour": 2,
+   "minute": 30,
+   "timeZone": "Asia/Seoul",
+   "kind": "ambiguous",
+   "instant": "1987-10-10T16:30:00Z",
+   "offsetSeconds": 36000,
+   "laterInstant": "1987-10-10T17:30:00Z"
+  },
+  {
+   "year": 1990,
+   "month": 5,
+   "day": 15,
+   "hour": 14,
+   "minute": 30,
+   "timeZone": "Asia/Seoul",
+   "kind": "unique",
+   "instant": "1990-05-15T05:30:00Z",
+   "offsetSeconds": 32400
+  },
+  {
+   "year": 2026,
+   "month": 3,
+   "day": 15,
+   "hour": 12,
+   "minute": 0,
+   "timeZone": "Asia/Seoul",
+   "kind": "unique",
+   "instant": "2026-03-15T03:00:00Z",
+   "offsetSeconds": 32400
+  },
+  {
+   "year": 1984,
+   "month": 2,
+   "day": 2,
+   "hour": 12,
+   "minute": 0,
+   "timeZone": "America/New_York",
+   "kind": "unique",
+   "instant": "1984-02-02T17:00:00Z",
+   "offsetSeconds": -18000
+  },
+  {
+   "year": 2023,
+   "month": 3,
+   "day": 12,
+   "hour": 2,
+   "minute": 30,
+   "timeZone": "America/New_York",
+   "kind": "skipped",
+   "instant": "2023-03-12T07:30:00Z",
+   "offsetSeconds": -14400
+  },
+  {
+   "year": 2023,
+   "month": 11,
+   "day": 5,
+   "hour": 1,
+   "minute": 30,
+   "timeZone": "America/New_York",
+   "kind": "ambiguous",
+   "instant": "2023-11-05T05:30:00Z",
+   "offsetSeconds": -14400,
+   "laterInstant": "2023-11-05T06:30:00Z"
+  },
+  {
+   "year": 2000,
+   "month": 1,
+   "day": 1,
+   "hour": 0,
+   "minute": 0,
+   "timeZone": "Asia/Tokyo",
+   "kind": "unique",
+   "instant": "1999-12-31T15:00:00Z",
+   "offsetSeconds": 32400
+  },
+  {
+   "year": 1975,
+   "month": 8,
+   "day": 20,
+   "hour": 18,
+   "minute": 45,
+   "timeZone": "Europe/London",
+   "kind": "unique",
+   "instant": "1975-08-20T17:45:00Z",
+   "offsetSeconds": 3600
+  },
+  {
+   "year": 1995,
+   "month": 12,
+   "day": 25,
+   "hour": 6,
+   "minute": 15,
+   "timeZone": "Asia/Kolkata",
+   "kind": "unique",
+   "instant": "1995-12-25T00:45:00Z",
+   "offsetSeconds": 19800
+  },
+  {
+   "year": 2010,
+   "month": 7,
+   "day": 4,
+   "hour": 23,
+   "minute": 59,
+   "timeZone": "Australia/Sydney",
+   "kind": "unique",
+   "instant": "2010-07-04T13:59:00Z",
+   "offsetSeconds": 36000
+  }
+ ],
  "lifeGua": [
   {
    "baziYear": 1960,

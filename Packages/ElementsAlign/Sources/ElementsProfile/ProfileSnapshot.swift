@@ -58,6 +58,18 @@ struct ProfileRecord: Codable, Sendable {
     let lateZiPolicy: String
     let usesEquationOfTime: Bool
 
+    // The wall-clock reading and the zone it was read in. Optional because
+    // records written before these existed carry only the instant, and those
+    // must keep loading. When present they take precedence: re-resolving means
+    // a profile picks up tz database corrections, where a frozen instant would
+    // keep an answer that is now known to be wrong.
+    let birthYear: Int?
+    let birthMonth: Int?
+    let birthDay: Int?
+    let birthHour: Int?
+    let birthMinute: Int?
+    let birthTimeZone: String?
+
     init(_ profile: PersonalProfile) {
         birthInstant = profile.birth.instant
         latitude = profile.birth.location.latitude
@@ -66,6 +78,41 @@ struct ProfileRecord: Codable, Sendable {
         polarity = profile.polarity.identifier
         lateZiPolicy = profile.options.lateZiPolicy.rawValue
         usesEquationOfTime = profile.options.usesEquationOfTime
+        birthYear = profile.birth.civil?.year
+        birthMonth = profile.birth.civil?.month
+        birthDay = profile.birth.civil?.day
+        birthHour = profile.birth.civil?.hour
+        birthMinute = profile.birth.civil?.minute
+        birthTimeZone = profile.birth.civil?.timeZoneIdentifier
+    }
+
+    /// The stored wall-clock reading, or nil when the record predates it.
+    ///
+    /// A record carrying *some* civil fields, or an unresolvable zone, is
+    /// damaged rather than old, and is rejected by ``validatedProfile()``
+    /// rather than quietly falling back to the instant: silently reverting to
+    /// a less accurate reading is exactly the kind of failure this schema
+    /// refuses elsewhere.
+    private var civilFields: (CivilBirthTime?, isDamaged: Bool) {
+        let present = [birthYear, birthMonth, birthDay, birthHour, birthMinute]
+            .compactMap { $0 }.count
+        switch (present, birthTimeZone) {
+        case (0, nil):
+            return (nil, false)
+        case let (5, identifier?):
+            guard let year = birthYear, let month = birthMonth, let day = birthDay,
+                  let hour = birthHour, let minute = birthMinute,
+                  (1...12).contains(month), (1...31).contains(day),
+                  (0...23).contains(hour), (0...59).contains(minute),
+                  TimeZone(identifier: identifier) != nil else {
+                return (nil, true)
+            }
+            return (CivilBirthTime(year: year, month: month, day: day,
+                                   hour: hour, minute: minute,
+                                   timeZoneIdentifier: identifier), false)
+        default:
+            return (nil, true)
+        }
     }
 
     func validatedProfile() throws -> PersonalProfile {
@@ -81,10 +128,18 @@ struct ProfileRecord: Codable, Sendable {
               polarity == "yin" || polarity == "yang" else {
             throw ProfileDataError.invalidProfile
         }
+        let (civil, isDamaged) = civilFields
+        guard !isDamaged else { throw ProfileDataError.invalidProfile }
+
+        let location = GeoLocation(latitude: latitude, longitude: longitude)
+        // Prefer the wall-clock reading, which re-resolves through the current
+        // tz database; fall back to the instant for records written before it.
+        let birth = civil.map {
+            BirthMoment(civil: $0, location: location, precision: precision)
+        } ?? BirthMoment(instant: birthInstant, location: location, precision: precision)
+
         return PersonalProfile(
-            birth: BirthMoment(instant: birthInstant,
-                               location: GeoLocation(latitude: latitude, longitude: longitude),
-                               precision: precision),
+            birth: birth,
             polarity: polarity == "yin" ? .yin : .yang,
             options: BaZiOptions(lateZiPolicy: policy, usesEquationOfTime: usesEquationOfTime))
     }

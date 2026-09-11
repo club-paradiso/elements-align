@@ -19,6 +19,7 @@ enum Fixtures {
         let yearPillars: [YearPillarCase]
         let dayPillars: [DayPillarCase]
         let fourPillars: [FourPillarsCase]
+        let timeZones: [TimeZoneCase]
         let lifeGua: [LifeGuaCase]
         let baZhai: [BaZhaiCase]
         let angular: [AngularCase]
@@ -46,6 +47,12 @@ enum Fixtures {
         let label: String, utc: String, longitude: Double, lateZiPolicy: String
         let year: [Int], month: [Int], day: [Int], hour: [Int]
         let solarHour: Double, boundaryProximityMinutes: Double
+    }
+    struct TimeZoneCase: Decodable {
+        let year: Int, month: Int, day: Int, hour: Int, minute: Int
+        let timeZone: String, kind: String
+        let instant: String, offsetSeconds: Int
+        let laterInstant: String?
     }
     struct LifeGuaCase: Decodable {
         let baziYear: Int, polarity: String, gua: Int

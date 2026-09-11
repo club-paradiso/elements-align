@@ -53,10 +53,11 @@
 "onboarding.birthTime.note" = "The hour is read in true solar time, not clock time.";
 "onboarding.birthTime.unknownNote" = "That's fine. Your chart will be built without an hour pillar rather than guessing one, and the app will say so.";
 "onboarding.birthPlace.title" = "Where?";
-"onboarding.birthPlace.note" = "Only the longitude is used, to work out the sun's position where you were born. Nothing is sent anywhere.";
+"onboarding.birthPlace.note" = "The longitude places the sun where you were born, and the time zone says which clocks your birth time was read on -- including offsets countries have since changed. Nothing is sent anywhere.";
 "onboarding.birthPlace.search" = "Search";
 "onboarding.birthPlace.manual" = "Enter a longitude instead";
 "onboarding.birthPlace.longitude" = "Longitude, east positive";
+"onboarding.birthPlace.timeZone" = "Time zone";
 "onboarding.polarity.title" = "Yang or yin?";
 "onboarding.polarity.note" = "Eight Mansions determines your directions from this. The rule is traditionally stated in terms of male and female; the app asks for the polarity the rule actually turns on.";
 "onboarding.permissions.title" = "Your watch needs the compass";
@@ -76,6 +77,9 @@
 "summary.directions.title" = "Your directions";
 "summary.notice.boundary" = "Your birth falls close to a solar term boundary, so a small error in the recorded time would change a pillar. Treat this chart as approximate.";
 "summary.notice.precision" = "Built without a birth time, so there is no hour pillar. Everything shown is still derived, just from less information.";
+"summary.notice.ambiguousTime" = "Clocks went back that night, so the time you gave happened twice. This chart uses the first of the two. If you know it was the later one, the hour pillar may differ.";
+"summary.notice.skippedTime" = "Clocks went forward that night, so the time you gave never occurred. This chart uses the moment the clocks skipped to.";
+"summary.notice.unknownTimeZone" = "That time zone could not be resolved, so the time was read as UTC. The hour pillar is unreliable until the birth place is set again.";
 
 /* Watch */
 "watch.setup.required" = "Finish setup on iPhone";

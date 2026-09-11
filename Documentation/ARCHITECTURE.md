@@ -17,7 +17,7 @@ elements-align/
 │   │   │   └── Geometry/            angle arithmetic
 │   │   ├── ElementsSpatial/         heading maths + sensor adapters
 │   │   └── ElementsDesign/          tokens + presentation logic
-│   └── Tests/                       104 tests, golden fixtures
+│   └── Tests/                       131 tests, golden fixtures
 ├── Apps/
 │   ├── iOS/                         onboarding, profile, settings, debug
 │   ├── watchOS/                     the ambient experience
