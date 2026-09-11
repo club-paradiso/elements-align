@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 import ElementsCore
+import ElementsProfile
 import ElementsSpatial
 
 /// Drives the watch experience.

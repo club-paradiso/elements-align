@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 import ElementsCore
+import ElementsProfile
 
 /// State for the onboarding flow.
 ///

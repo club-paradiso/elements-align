@@ -14,12 +14,17 @@ let package = Package(
         .library(name: "ElementsCore", targets: ["ElementsCore"]),
         .library(name: "ElementsSpatial", targets: ["ElementsSpatial"]),
         .library(name: "ElementsDesign", targets: ["ElementsDesign"]),
+        .library(name: "ElementsProfile", targets: ["ElementsProfile"]),
     ],
     targets: [
         // Pure deterministic domain logic. Foundation only: no UI, no sensors,
         // no networking, no platform frameworks. Builds and tests on Linux,
         // which is how it is verified in CI.
         .target(name: "ElementsCore"),
+
+        // Validated persistence and paired-device payloads, separate from maths.
+        .target(name: "ElementsProfile", dependencies: ["ElementsCore"]),
+        .testTarget(name: "ElementsProfileTests", dependencies: ["ElementsProfile", "ElementsCore"]),
 
         // Heading maths and sensor plumbing. The maths is platform-neutral and
         // tested on Linux; the CoreLocation adapter is compiled only where

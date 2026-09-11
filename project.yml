@@ -20,7 +20,8 @@ options:
 
 settings:
   base:
-    SWIFT_VERSION: "5.9"
+    SWIFT_VERSION: "5.0" # Language mode; the package tools version is 5.9.
+    GENERATE_INFOPLIST_FILE: YES
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
     SWIFT_STRICT_CONCURRENCY: complete
@@ -51,6 +52,8 @@ targets:
       - package: ElementsAlign
         product: ElementsCore
       - package: ElementsAlign
+        product: ElementsProfile
+      - package: ElementsAlign
         product: ElementsDesign
       - target: ElementsAlignWatch
         embed: true
@@ -80,6 +83,8 @@ targets:
       - package: ElementsAlign
         product: ElementsCore
       - package: ElementsAlign
+        product: ElementsProfile
+      - package: ElementsAlign
         product: ElementsSpatial
       - package: ElementsAlign
         product: ElementsDesign
@@ -88,6 +93,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.elementsalign.app.watchkitapp
         INFOPLIST_KEY_CFBundleDisplayName: "Elements, Align."
         INFOPLIST_KEY_WKCompanionAppBundleIdentifier: com.elementsalign.app
+        INFOPLIST_KEY_WKApplication: YES
         INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp: YES
         INFOPLIST_KEY_NSLocationWhenInUseUsageDescription: "Elements, Align. uses the compass to tell which way you are facing. Your position is never stored or sent anywhere."
         CFBundleLocalizations: "en ko"

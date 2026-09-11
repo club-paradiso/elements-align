@@ -11,3 +11,6 @@ xcuserdata/
 .DS_Store
 __pycache__/
 *.pyc
+
+# Workspace-local toolchains, caches and build logs
+.local/
