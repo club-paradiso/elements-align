@@ -1,0 +1,110 @@
+/* Elements, Align. — 한국어 */
+
+/* 오행 */
+"element.wood" = "목";
+"element.fire" = "화";
+"element.earth" = "토";
+"element.metal" = "금";
+"element.water" = "수";
+
+/* 정렬 상태 */
+"alignment.level.low" = "고요함";
+"alignment.level.unfavourable" = "어수선함";
+"alignment.level.neutral" = "보통";
+"alignment.level.favourable" = "좋음";
+"alignment.level.strong" = "강함";
+"alignment.level.aligned" = "정렬됨";
+"alignment.accessibility.value" = "가장 좋은 방향은 %@, %d도 떨어져 있음";
+
+/* 방위 */
+"direction.north" = "북";
+"direction.northeast" = "북동";
+"direction.east" = "동";
+"direction.southeast" = "남동";
+"direction.south" = "남";
+"direction.southwest" = "남서";
+"direction.west" = "서";
+"direction.northwest" = "북서";
+
+/* 팔택 */
+"bazhai.relation.shengqi" = "생기";
+"bazhai.relation.tianyi" = "천의";
+"bazhai.relation.yannian" = "연년";
+"bazhai.relation.fuwei" = "복위";
+"bazhai.relation.huohai" = "화해";
+"bazhai.relation.liusha" = "육살";
+"bazhai.relation.wugui" = "오귀";
+"bazhai.relation.jueming" = "절명";
+"bazhai.group.east" = "동사명";
+"bazhai.group.west" = "서사명";
+
+/* 음양 */
+"polarity.yang" = "양 (전통적으로 남)";
+"polarity.yin" = "음 (전통적으로 여)";
+
+/* 온보딩 */
+"onboarding.welcome.body" = "장소와 시간, 그리고 방향이 지금의 나와 어떻게 맞물리는지 조용히 살펴봅니다. 한 번만 설정해 두면, 움직일 때마다 시계가 반응합니다.";
+"onboarding.birthDate.title" = "언제 태어나셨나요?";
+"onboarding.birthDate.note" = "사주는 태양의 위치로 정해집니다. 달력보다 그 순간의 절기가 기준입니다.";
+"onboarding.birthTime.title" = "몇 시인가요?";
+"onboarding.birthTime.known" = "태어난 시각을 알고 있습니다";
+"onboarding.birthTime.note" = "시주는 시계 시간이 아니라 진태양시로 읽습니다.";
+"onboarding.birthTime.unknownNote" = "괜찮습니다. 시각을 임의로 지어내지 않고 시주 없이 명식을 세우며, 그 사실을 함께 표시합니다.";
+"onboarding.birthPlace.title" = "어디에서 태어나셨나요?";
+"onboarding.birthPlace.note" = "태어난 곳의 태양 위치를 계산하는 데 경도만 씁니다. 아무 곳에도 전송되지 않습니다.";
+"onboarding.birthPlace.search" = "검색";
+"onboarding.birthPlace.manual" = "경도를 직접 입력";
+"onboarding.birthPlace.longitude" = "경도 (동경이 양수)";
+"onboarding.polarity.title" = "양인가요, 음인가요?";
+"onboarding.polarity.note" = "팔택은 이 값으로 방위를 정합니다. 전통적으로는 남녀로 설명하지만, 실제 규칙이 따르는 것은 음양이라 그대로 여쭙습니다.";
+"onboarding.permissions.title" = "시계의 나침반이 필요합니다";
+"onboarding.permissions.note" = "방향은 나침반에서 옵니다. iOS는 이를 위치 권한으로 묶어 둡니다. 현재 위치는 저장하거나 전송하지 않습니다.";
+
+/* 명식 요약 */
+"summary.dayMaster.title" = "나의 오행";
+"summary.dayMaster.strong" = "기운이 넉넉한 편입니다. 밖으로 흘려보내는 오행이 도움이 됩니다.";
+"summary.dayMaster.weak" = "기운이 여린 편입니다. 안으로 채워 주는 오행이 도움이 됩니다.";
+"summary.elements.title" = "오행 분포";
+"summary.pillars.title" = "사주";
+"summary.pillars.year" = "연주";
+"summary.pillars.month" = "월주";
+"summary.pillars.day" = "일주";
+"summary.pillars.hour" = "시주";
+"summary.pillars.unknown" = "미상";
+"summary.directions.title" = "나의 방위";
+"summary.notice.boundary" = "절기가 바뀌는 시점과 매우 가깝습니다. 기록된 시각이 조금만 달라도 주(柱)가 바뀌니 참고용으로 봐 주세요.";
+"summary.notice.precision" = "태어난 시각 없이 세운 명식이라 시주가 없습니다. 나머지는 그대로 계산되었고, 다만 정보가 적을 뿐입니다.";
+
+/* 워치 */
+"watch.setup.required" = "iPhone에서 설정을 마쳐 주세요";
+"heading.unavailable.noHardware" = "이 워치에는 나침반이 없습니다";
+"heading.unavailable.permissionDenied" = "나침반 접근이 꺼져 있습니다";
+"heading.unavailable.permissionNotDetermined" = "나침반 접근을 허용해 주세요";
+"heading.unavailable.calibrating" = "북쪽을 찾는 중";
+"heading.unavailable.unsupportedEnvironment" = "시뮬레이터에는 나침반이 없습니다";
+"heading.unavailable.short" = "방향을 알 수 없음";
+
+/* 설정 */
+"tab.profile" = "프로필";
+"tab.settings" = "설정";
+"settings.about.title" = "소개";
+"settings.privacy.title" = "개인정보";
+"settings.calculation.title" = "계산 방식";
+"settings.lateZi" = "야자시 처리";
+"settings.solarTime" = "태양시";
+"settings.solarTime.apparent" = "진태양시";
+"settings.solarTime.mean" = "평균태양시";
+"settings.calculation.note" = "유파마다 견해가 갈리는 부분은, 정답인 척하지 않고 하나를 택해 그 근거를 문서로 남겼습니다.";
+"settings.debug" = "엔진 점검";
+"settings.delete" = "내 데이터 삭제";
+"settings.delete.confirm" = "이 기기에서 생년월일과 명식을 지울까요?";
+"about.what" = "정렬도는 사주·오행·팔택이라는 전통 규칙과 지금의 시각, 그리고 바라보는 방향에서 계산한 상징적인 값입니다.";
+"about.disclaimer" = "이것은 전통적인 관념 체계이며, 물리적인 무언가를 측정한 값이 아닙니다. 건강·심리·재정·안전에 대한 진단이나 예측이 아닙니다.";
+"about.privacy" = "생년월일 정보는 이 기기에만 있습니다. 계정도, 동기화도, 이를 담은 분석 전송도 없습니다. 서버에서 계산하지 않으며 결과의 어떤 부분도 AI 서비스에서 오지 않습니다.";
+
+/* 동작 */
+"action.continue" = "다음";
+"action.back" = "이전";
+"action.begin" = "시작";
+"action.done" = "완료";
+"action.cancel" = "취소";

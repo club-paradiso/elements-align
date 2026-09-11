@@ -1,0 +1,43 @@
+# Builds and tests the domain engine on Linux.
+#
+# No Xcode, no macOS runner, no third-party actions. ElementsCore imports
+# Foundation and nothing else, and the platform code in ElementsSpatial and
+# ElementsDesign is gated behind canImport, so the whole package builds on a
+# plain Swift container. That is the point of the architecture: the part of
+# this product that has to be correct is verifiable without a Mac.
+#
+# The app targets are NOT built here — they need Xcode. See
+# Documentation/BUILD_STATUS.md.
+
+name: Engine
+
+# Push is restricted to main. A feature branch with an open PR is covered by
+# the pull_request event, and listing both ran every commit twice.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# A newer push supersedes an in-flight run on the same ref.
+concurrency:
+  group: engine-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: swift test (Linux)
+    runs-on: ubuntu-latest
+    container: swift:6.0-noble
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        run: swift --version
+
+      - name: Build
+        run: swift build --package-path Packages/ElementsAlign
+
+      - name: Test
+        run: swift test --package-path Packages/ElementsAlign
