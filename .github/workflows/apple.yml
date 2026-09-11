@@ -1,0 +1,72 @@
+# Compiles the iOS and watchOS app targets.
+#
+# Separate from engine.yml because it needs a macOS runner, which costs roughly
+# ten times a Linux one. It is therefore NOT run on every commit: only by hand,
+# or when a pull request actually touches the app layer or the project spec.
+# The engine is covered on Linux on every push, and that is where the
+# correctness lives.
+#
+# Unsigned simulator builds: no signing identity, no provisioning profile, no
+# DEVELOPMENT_TEAM. Nothing here needs a paid account.
+
+name: Apple apps
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'Apps/**'
+      - 'project.yml'
+      - 'Packages/ElementsAlign/Package.swift'
+      - '.github/workflows/apple.yml'
+
+concurrency:
+  group: apple-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: xcodebuild (iOS + watchOS simulators)
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate project
+        run: xcodegen generate
+
+      - name: Available SDKs and schemes
+        run: |
+          xcodebuild -showsdks
+          xcodebuild -list -project ElementsAlign.xcodeproj
+
+      # Built first: the watch app is the product, and it is embedded in the
+      # iOS app, so a failure here would otherwise surface as a confusing
+      # failure of the iOS build.
+      - name: Build watchOS app
+        run: |
+          xcodebuild -project ElementsAlign.xcodeproj \
+            -scheme ElementsAlignWatch \
+            -configuration Debug \
+            -destination 'generic/platform=watchOS Simulator' \
+            -derivedDataPath DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Build iOS app
+        run: |
+          xcodebuild -project ElementsAlign.xcodeproj \
+            -scheme ElementsAlign \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            build
