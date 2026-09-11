@@ -7,7 +7,7 @@
 PACKAGE := Packages/ElementsAlign
 PYMEEUS ?= /tmp/pymeeus/PyMeeus-0.5.12
 
-.PHONY: help test build syntax fixtures vsop project clean
+.PHONY: help test build syntax fixtures vsop project apple-build clean
 
 help:
 	@echo "test      Build and test the engine (no Xcode required)"
@@ -16,6 +16,7 @@ help:
 	@echo "fixtures  Regenerate golden test fixtures from the reference oracle"
 	@echo "vsop      Regenerate the truncated VSOP87 Swift tables"
 	@echo "project   Generate ElementsAlign.xcodeproj with XcodeGen (macOS)"
+	@echo "apple-build  Inspect SDKs and compile both unsigned simulator apps (macOS)"
 
 test:
 	swift test --package-path $(PACKAGE)
@@ -36,6 +37,17 @@ vsop:
 
 project:
 	xcodegen generate
+
+apple-build: project
+	xcodebuild -version
+	xcodebuild -showsdks
+	xcodebuild -list -project ElementsAlign.xcodeproj
+	xcodebuild -project ElementsAlign.xcodeproj -scheme ElementsAlignWatch \
+		-configuration Debug -destination 'generic/platform=watchOS Simulator' \
+		-derivedDataPath DerivedData CODE_SIGNING_ALLOWED=NO build
+	xcodebuild -project ElementsAlign.xcodeproj -scheme ElementsAlign \
+		-configuration Debug -destination 'generic/platform=iOS Simulator' \
+		-derivedDataPath DerivedData CODE_SIGNING_ALLOWED=NO build
 
 clean:
 	rm -rf $(PACKAGE)/.build ElementsAlign.xcodeproj
