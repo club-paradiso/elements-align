@@ -16,6 +16,7 @@ compiled.** See [BUILD_STATUS.md](BUILD_STATUS.md).
 - [x] Alignment states with hysteresis
 - [x] Haptic state transitions
 - [x] iOS onboarding, profile configuration, permissions
+- [x] Historical time zones, including daylight-saving gaps and repeats
 - [x] Debug inspectors on both platforms
 - [x] 104 tests against externally validated fixtures
 - [x] English and Korean localisation
@@ -33,12 +34,7 @@ The next session's work, in priority order.
    errors concentrated there.
 2. **Run the device checklist.** Nothing about compass behaviour on hardware
    is currently verified.
-3. **Historical time zones.** Onboarding currently interprets birth date and
-   time in the device's *current* zone. For someone born in a different zone
-   this is wrong, sometimes by hours. Needs the historical zone for the birth
-   place and date, including that era's daylight-saving rules. This is the
-   largest remaining correctness gap.
-4. **Widen the birth-place table**, or add offline geocoding. Manual longitude
+3. **Widen the birth-place table**, or add offline geocoding. Manual longitude
    entry covers the gap today but is a poor experience.
 
 ## Milestone 3 — Presence
@@ -83,7 +79,6 @@ backend, accounts, or any analytics carrying personal data.
 | --- | --- |
 | App targets never compiled | [BUILD_STATUS.md](BUILD_STATUS.md) |
 | Sensor behaviour unvalidated | [DEVICE_TESTING.md](DEVICE_TESTING.md) |
-| Birth time zone assumed to be the device's | Milestone 2 |
 | Favourable elements use one school (扶抑法) | [ALIGNMENT_ENGINE.md](ALIGNMENT_ENGINE.md) |
 | Eight 45° sectors, not 24 mountains | [TRADITIONAL_SYSTEMS.md](TRADITIONAL_SYSTEMS.md) |
 | Solar terms accurate to ~10 s | [TRADITIONAL_SYSTEMS.md](TRADITIONAL_SYSTEMS.md) |

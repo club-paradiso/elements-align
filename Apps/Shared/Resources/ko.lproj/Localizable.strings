@@ -51,10 +51,11 @@
 "onboarding.birthTime.note" = "시주는 시계 시간이 아니라 진태양시로 읽습니다.";
 "onboarding.birthTime.unknownNote" = "괜찮습니다. 시각을 임의로 지어내지 않고 시주 없이 명식을 세우며, 그 사실을 함께 표시합니다.";
 "onboarding.birthPlace.title" = "어디에서 태어나셨나요?";
-"onboarding.birthPlace.note" = "태어난 곳의 태양 위치를 계산하는 데 경도만 씁니다. 아무 곳에도 전송되지 않습니다.";
+"onboarding.birthPlace.note" = "경도는 태어난 곳의 태양 위치를, 시간대는 그 시각이 어느 나라 시계로 적힌 것인지를 정합니다. 이후에 바뀐 표준시 차이까지 반영합니다. 아무 곳에도 전송되지 않습니다.";
 "onboarding.birthPlace.search" = "검색";
 "onboarding.birthPlace.manual" = "경도를 직접 입력";
 "onboarding.birthPlace.longitude" = "경도 (동경이 양수)";
+"onboarding.birthPlace.timeZone" = "시간대";
 "onboarding.polarity.title" = "양인가요, 음인가요?";
 "onboarding.polarity.note" = "팔택은 이 값으로 방위를 정합니다. 전통적으로는 남녀로 설명하지만, 실제 규칙이 따르는 것은 음양이라 그대로 여쭙습니다.";
 "onboarding.permissions.title" = "시계의 나침반이 필요합니다";
@@ -74,6 +75,9 @@
 "summary.directions.title" = "나의 방위";
 "summary.notice.boundary" = "절기가 바뀌는 시점과 매우 가깝습니다. 기록된 시각이 조금만 달라도 주(柱)가 바뀌니 참고용으로 봐 주세요.";
 "summary.notice.precision" = "태어난 시각 없이 세운 명식이라 시주가 없습니다. 나머지는 그대로 계산되었고, 다만 정보가 적을 뿐입니다.";
+"summary.notice.ambiguousTime" = "그날 밤 시계를 되돌려서, 말씀하신 시각이 두 번 지나갔습니다. 이 명식은 그중 앞쪽을 썼습니다. 뒤쪽이 맞다면 시주가 달라질 수 있습니다.";
+"summary.notice.skippedTime" = "그날 밤 시계를 앞당겨서, 말씀하신 시각은 존재하지 않았습니다. 이 명식은 시계가 건너뛴 지점을 썼습니다.";
+"summary.notice.unknownTimeZone" = "시간대를 찾지 못해 UTC로 읽었습니다. 출생지를 다시 정하기 전까지 시주는 믿을 수 없습니다.";
 
 /* 워치 */
 "watch.setup.required" = "iPhone에서 설정을 마쳐 주세요";

@@ -20,6 +20,7 @@ struct ChartSummaryView: View {
                 directions
                 if chart.pillars.isNearMonthBoundary { boundaryNotice }
                 if chart.pillars.precision == .dayOnly { precisionNotice }
+                if let timeZoneNotice { timeZoneNotice }
                 disclaimer
             }
             .padding(20)
@@ -132,6 +133,22 @@ struct ChartSummaryView: View {
                 }
                 .font(.subheadline)
             }
+        }
+    }
+
+    /// Shown only when the wall-clock reading did not map to one instant.
+    /// A clean reading needs no explanation.
+    @ViewBuilder
+    private var timeZoneNotice: (some View)? {
+        switch chart.profile.birth.timeResolution {
+        case .unique:
+            EmptyView().hidden()
+        case .ambiguous:
+            notice("summary.notice.ambiguousTime")
+        case .skipped:
+            notice("summary.notice.skippedTime")
+        case .unknownTimeZone:
+            notice("summary.notice.unknownTimeZone")
         }
     }
 

@@ -172,8 +172,7 @@ properties are asserted in tests. Reduce Motion collapses every duration.
 2. Run the hardware checklist in
    [Documentation/DEVICE_TESTING.md](Documentation/DEVICE_TESTING.md) —
    nothing about compass behaviour on a real watch is currently verified.
-3. Fix historical time zones for birth data, the largest remaining correctness
-   gap.
+3. Widen the birth-place table, or add offline geocoding.
 
 [Documentation/ROADMAP.md](Documentation/ROADMAP.md)
 

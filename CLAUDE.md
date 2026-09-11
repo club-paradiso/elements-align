@@ -148,8 +148,7 @@ Next, in order:
 
 1. Build the app targets in Xcode. Expect errors concentrated in SwiftUI.
 2. Run [Documentation/DEVICE_TESTING.md](Documentation/DEVICE_TESTING.md).
-3. Fix historical time zones for birth data — the largest remaining
-   correctness gap.
+3. Widen the birth-place table, or add offline geocoding.
 
 See [Documentation/ROADMAP.md](Documentation/ROADMAP.md).
 
