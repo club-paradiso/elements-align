@@ -52,6 +52,8 @@ targets:
       - package: ElementsAlign
         product: ElementsCore
       - package: ElementsAlign
+        product: ElementsProfile
+      - package: ElementsAlign
         product: ElementsDesign
       - target: ElementsAlignWatch
         embed: true
@@ -80,6 +82,8 @@ targets:
     dependencies:
       - package: ElementsAlign
         product: ElementsCore
+      - package: ElementsAlign
+        product: ElementsProfile
       - package: ElementsAlign
         product: ElementsSpatial
       - package: ElementsAlign

@@ -1,5 +1,6 @@
 import SwiftUI
 import ElementsCore
+import ElementsProfile
 import ElementsDesign
 
 // Explicitly main-actor isolated for the same reason as the watch app:
