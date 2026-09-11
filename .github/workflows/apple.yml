@@ -53,13 +53,14 @@ jobs:
       # failure of the iOS build.
       - name: Build watchOS app
         run: |
+          set -o pipefail
           xcodebuild -project ElementsAlign.xcodeproj \
             -scheme ElementsAlignWatch \
             -configuration Debug \
             -destination 'generic/platform=watchOS Simulator' \
             -derivedDataPath DerivedData \
             CODE_SIGNING_ALLOWED=NO \
-            build
+            build | tee watch-build.log
 
       - name: Build iOS app
         run: |
@@ -73,16 +74,41 @@ jobs:
             build | tee ios-build.log
 
       # Reported rather than enforced. The build passes today; nobody has yet
-      # read what it warns about, and a count in the summary is how that stops
-      # being invisible.
+      # read what it warns about, and a count is how that stops being
+      # invisible.
+      #
+      # Written to stdout as well as the step summary. The summary is only
+      # readable in the web UI, and the raw log is only downloadable from a
+      # blob host that some networks block -- so a tool reading the job log is
+      # otherwise unable to see the one thing this step exists to report.
+      # Printing it in the last few lines of the log fixes that.
       - name: Warning summary
         if: always()
         run: |
-          count=$(grep -c "warning:" ios-build.log || true)
-          echo "### Compiler warnings: ${count}" >> "$GITHUB_STEP_SUMMARY"
-          if [ "${count}" != "0" ]; then
-            echo '```' >> "$GITHUB_STEP_SUMMARY"
-            grep -o "warning: .*" ios-build.log | sort | uniq -c | sort -rn \
-              | head -40 >> "$GITHUB_STEP_SUMMARY"
-            echo '```' >> "$GITHUB_STEP_SUMMARY"
-          fi
+          summarise() {
+            local label="$1" file="$2"
+            if [ ! -f "$file" ]; then
+              printf '%s: build did not run\n' "$label"
+              return
+            fi
+            local count
+            count=$(grep -c "warning:" "$file" || true)
+            printf '%s: %s warning(s)\n' "$label" "$count"
+            if [ "$count" != "0" ]; then
+              grep -o "warning: .*" "$file" | sort | uniq -c | sort -rn | head -25
+            fi
+          }
+
+          {
+            echo "=== COMPILER WARNING SUMMARY ==="
+            summarise watchOS watch-build.log
+            summarise iOS ios-build.log
+            echo "=== END WARNING SUMMARY ==="
+          } | tee warning-summary.txt
+
+          {
+            echo '### Compiler warnings'
+            echo '```'
+            cat warning-summary.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
