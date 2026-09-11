@@ -1,0 +1,111 @@
+# XcodeGen specification for Elements, Align.
+#
+# The .xcodeproj is generated rather than committed. This repository was
+# authored in an environment with no macOS and no Xcode (see
+# Documentation/BUILD_STATUS.md), and a hand-written project.pbxproj that
+# nobody could open would be worse than no project file at all. Generating it
+# also keeps the source tree readable and makes target changes reviewable as
+# a diff of this file.
+#
+#   brew install xcodegen && xcodegen generate && open ElementsAlign.xcodeproj
+#
+name: ElementsAlign
+options:
+  bundleIdPrefix: com.elementsalign
+  deploymentTarget:
+    iOS: "17.0"
+    watchOS: "10.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_STRICT_CONCURRENCY: complete
+    GCC_TREAT_WARNINGS_AS_ERRORS: NO
+    SWIFT_TREAT_WARNINGS_AS_ERRORS: NO
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    DEVELOPMENT_TEAM: ""          # set locally; not committed
+    CODE_SIGN_STYLE: Automatic
+
+packages:
+  ElementsAlign:
+    path: Packages/ElementsAlign
+
+targets:
+
+  # ---------------------------------------------------------------- iOS app
+  ElementsAlign:
+    type: application
+    platform: iOS
+    sources:
+      - path: Apps/iOS/ElementsAlign
+      - path: Apps/Shared
+        excludes:
+          - Resources/**
+      - path: Apps/Shared/Resources
+        buildPhase: resources
+    dependencies:
+      - package: ElementsAlign
+        product: ElementsCore
+      - package: ElementsAlign
+        product: ElementsDesign
+      - target: ElementsAlignWatch
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.elementsalign.app
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_CFBundleDisplayName: "Elements, Align."
+        # Heading is grouped under location permissions by iOS even though no
+        # position fix is needed, so the string explains what is actually used.
+        INFOPLIST_KEY_NSLocationWhenInUseUsageDescription: "Elements, Align. uses the compass to tell which way you are facing. Your position is never stored or sent anywhere."
+        CFBundleLocalizations: "en ko"
+
+  # ------------------------------------------------------------- watchOS app
+  ElementsAlignWatch:
+    type: application
+    platform: watchOS
+    sources:
+      - path: Apps/watchOS/ElementsAlignWatch
+      - path: Apps/Shared
+        excludes:
+          - Resources/**
+      - path: Apps/Shared/Resources
+        buildPhase: resources
+    dependencies:
+      - package: ElementsAlign
+        product: ElementsCore
+      - package: ElementsAlign
+        product: ElementsSpatial
+      - package: ElementsAlign
+        product: ElementsDesign
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.elementsalign.app.watchkitapp
+        INFOPLIST_KEY_CFBundleDisplayName: "Elements, Align."
+        INFOPLIST_KEY_WKCompanionAppBundleIdentifier: com.elementsalign.app
+        INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp: YES
+        INFOPLIST_KEY_NSLocationWhenInUseUsageDescription: "Elements, Align. uses the compass to tell which way you are facing. Your position is never stored or sent anywhere."
+        CFBundleLocalizations: "en ko"
+
+schemes:
+  ElementsAlign:
+    build:
+      targets:
+        ElementsAlign: all
+        ElementsAlignWatch: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      # Package tests run through `swift test`; see Makefile.
+  ElementsAlignWatch:
+    build:
+      targets:
+        ElementsAlignWatch: all
+    run:
+      config: Debug

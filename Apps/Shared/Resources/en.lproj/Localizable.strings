@@ -1,0 +1,112 @@
+/* Elements, Align. — English
+   Keys are grouped by surface. The domain layer never holds display text; it
+   emits localization keys and the UI resolves them here. */
+
+/* Five Elements */
+"element.wood" = "Wood";
+"element.fire" = "Fire";
+"element.earth" = "Earth";
+"element.metal" = "Metal";
+"element.water" = "Water";
+
+/* Alignment states */
+"alignment.level.low" = "Quiet";
+"alignment.level.unfavourable" = "Unsettled";
+"alignment.level.neutral" = "Neutral";
+"alignment.level.favourable" = "Favourable";
+"alignment.level.strong" = "Strong";
+"alignment.level.aligned" = "Aligned";
+"alignment.accessibility.value" = "Most favourable direction %@, %d degrees away";
+
+/* Directions */
+"direction.north" = "North";
+"direction.northeast" = "Northeast";
+"direction.east" = "East";
+"direction.southeast" = "Southeast";
+"direction.south" = "South";
+"direction.southwest" = "Southwest";
+"direction.west" = "West";
+"direction.northwest" = "Northwest";
+
+/* Eight Mansions relationships */
+"bazhai.relation.shengqi" = "Vitality";
+"bazhai.relation.tianyi" = "Restoration";
+"bazhai.relation.yannian" = "Continuity";
+"bazhai.relation.fuwei" = "Stillness";
+"bazhai.relation.huohai" = "Friction";
+"bazhai.relation.liusha" = "Drift";
+"bazhai.relation.wugui" = "Distraction";
+"bazhai.relation.jueming" = "Depletion";
+"bazhai.group.east" = "East group";
+"bazhai.group.west" = "West group";
+
+/* Polarity */
+"polarity.yang" = "Yang (traditionally male)";
+"polarity.yin" = "Yin (traditionally female)";
+
+/* Onboarding */
+"onboarding.welcome.body" = "A quiet way of noticing how place, time and direction sit with you. Set it up once, then let your watch respond as you move.";
+"onboarding.birthDate.title" = "When were you born?";
+"onboarding.birthDate.note" = "Your Four Pillars are read from the sun's position, so the date matters more than the calendar it was written on.";
+"onboarding.birthTime.title" = "What time?";
+"onboarding.birthTime.known" = "I know my birth time";
+"onboarding.birthTime.note" = "The hour is read in true solar time, not clock time.";
+"onboarding.birthTime.unknownNote" = "That's fine. Your chart will be built without an hour pillar rather than guessing one, and the app will say so.";
+"onboarding.birthPlace.title" = "Where?";
+"onboarding.birthPlace.note" = "Only the longitude is used, to work out the sun's position where you were born. Nothing is sent anywhere.";
+"onboarding.birthPlace.search" = "Search";
+"onboarding.birthPlace.manual" = "Enter a longitude instead";
+"onboarding.birthPlace.longitude" = "Longitude, east positive";
+"onboarding.polarity.title" = "Yang or yin?";
+"onboarding.polarity.note" = "Eight Mansions determines your directions from this. The rule is traditionally stated in terms of male and female; the app asks for the polarity the rule actually turns on.";
+"onboarding.permissions.title" = "Your watch needs the compass";
+"onboarding.permissions.note" = "Direction comes from the compass, which iOS groups with location permissions. Your position is never stored or sent.";
+
+/* Chart summary */
+"summary.dayMaster.title" = "Your element";
+"summary.dayMaster.strong" = "Well supported. You tend to benefit from what draws energy outward.";
+"summary.dayMaster.weak" = "Lightly supported. You tend to benefit from what feeds inward.";
+"summary.elements.title" = "Five Elements";
+"summary.pillars.title" = "Four Pillars";
+"summary.pillars.year" = "Year";
+"summary.pillars.month" = "Month";
+"summary.pillars.day" = "Day";
+"summary.pillars.hour" = "Hour";
+"summary.pillars.unknown" = "unknown";
+"summary.directions.title" = "Your directions";
+"summary.notice.boundary" = "Your birth falls close to a solar term boundary, so a small error in the recorded time would change a pillar. Treat this chart as approximate.";
+"summary.notice.precision" = "Built without a birth time, so there is no hour pillar. Everything shown is still derived, just from less information.";
+
+/* Watch */
+"watch.setup.required" = "Finish setup on iPhone";
+"heading.unavailable.noHardware" = "No compass on this watch";
+"heading.unavailable.permissionDenied" = "Compass access is off";
+"heading.unavailable.permissionNotDetermined" = "Allow compass access";
+"heading.unavailable.calibrating" = "Finding north";
+"heading.unavailable.unsupportedEnvironment" = "No compass in simulator";
+"heading.unavailable.short" = "Direction unavailable";
+
+/* Settings and about */
+"tab.profile" = "Profile";
+"tab.settings" = "Settings";
+"settings.about.title" = "About";
+"settings.privacy.title" = "Privacy";
+"settings.calculation.title" = "Calculation";
+"settings.lateZi" = "Late Zi hour";
+"settings.solarTime" = "Solar time";
+"settings.solarTime.apparent" = "Apparent";
+"settings.solarTime.mean" = "Mean";
+"settings.calculation.note" = "Where practitioners disagree, the app makes one documented choice rather than presenting it as settled.";
+"settings.debug" = "Engine inspector";
+"settings.delete" = "Delete my data";
+"settings.delete.confirm" = "Delete your birth details and chart from this device?";
+"about.what" = "Alignment is a symbolic value worked out from selected traditional rules — Four Pillars, Five Elements and Eight Mansions — together with the time and the direction you are facing.";
+"about.disclaimer" = "These are traditional belief systems, not measurements of anything physical. Alignment is not a health, psychological, financial or safety assessment, and it does not predict what will happen.";
+"about.privacy" = "Your birth details stay on this device. There is no account, no sync and no analytics carrying them. Nothing is calculated on a server, and no part of the result comes from an AI service.";
+
+/* Actions */
+"action.continue" = "Continue";
+"action.back" = "Back";
+"action.begin" = "Begin";
+"action.done" = "Done";
+"action.cancel" = "Cancel";
