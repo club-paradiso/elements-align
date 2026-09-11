@@ -57,16 +57,9 @@ public struct BirthMoment: Hashable, Sendable {
         self.location = location
         self.precision = precision
         self.timeResolution = resolution
-        if let resolved = resolution.instant {
-            self.instant = resolved
-        } else {
-            let jd = JulianDayConversion.julianDay(
-                from: GregorianDate(year: civil.year, month: civil.month,
-                                    day: Double(civil.day)
-                                        + (Double(civil.hour) * 3600
-                                           + Double(civil.minute) * 60) / 86400.0))
-            self.instant = JulianDayConversion.date(from: JulianDay(jd))
-        }
+        // With no resolvable zone the reading is taken as UTC, which
+        // `timeResolution` reports so the interface can say so.
+        self.instant = resolution.instant ?? civil.naiveUTC
     }
 
     /// Builds directly from an instant, for callers that already have one.

@@ -34,6 +34,23 @@ public struct CivilBirthTime: Hashable, Sendable {
     }
 
     public var timeZone: TimeZone? { TimeZone(identifier: timeZoneIdentifier) }
+
+    /// The reading taken at face value, as though the clock had been on UTC.
+    ///
+    /// Computed in whole seconds rather than through a Julian Day. A Julian
+    /// Day is a Double near 2.45 million, so a round trip through one loses
+    /// the last fraction of a second -- enough that an instant which should be
+    /// exactly 17:30:00 comes back as 17:29:59.9999997. That is invisible in
+    /// the pillars, which only care about minutes, but it makes every instant
+    /// compare unequal to the one it should be. Integers have no such problem.
+    var naiveUTC: Date {
+        // Julian Day Number 2440588 is the noon of 1970-01-01, so subtracting
+        // it gives whole days since the Unix epoch.
+        let dayNumber = JulianDayConversion.julianDayNumber(
+            year: year, month: month, day: day)
+        let seconds = (dayNumber - 2_440_588) * 86_400 + hour * 3_600 + minute * 60
+        return Date(timeIntervalSince1970: Double(seconds))
+    }
 }
 
 /// What happened when a wall-clock reading was resolved to an instant.
@@ -103,11 +120,7 @@ public extension CivilBirthTime {
     func resolve() -> CivilTimeResolution {
         guard let zone = timeZone else { return .unknownTimeZone }
 
-        let naiveJD = JulianDayConversion.julianDay(
-            from: GregorianDate(year: year, month: month,
-                                day: Double(day)
-                                    + (Double(hour) * 3600 + Double(minute) * 60) / 86400.0))
-        let naive = JulianDayConversion.date(from: JulianDay(naiveJD))
+        let naive = naiveUTC
 
         // A day either side comfortably brackets any transition, which are at
         // most an hour or two and never more than a day apart.

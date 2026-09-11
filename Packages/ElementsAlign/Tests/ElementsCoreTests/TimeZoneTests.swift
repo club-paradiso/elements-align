@@ -154,9 +154,12 @@ final class CivilBirthTimeTests: XCTestCase {
                                   timeZoneIdentifier: "Asia/Tokyo"),
             location: seoul)
 
-        XCTAssertNotEqual(correct.instant, wrong.instant,
-                          "1955 Korea ran 30 minutes behind Japan")
-        XCTAssertEqual(wrong.instant.timeIntervalSince(correct.instant), -1800)
+        // In June 1955 Korea was on summer time at UTC+9:30, half an hour
+        // ahead of Japan's UTC+9. The same wall-clock reading in Seoul is
+        // therefore the earlier instant, so reading it as Tokyo time lands
+        // half an hour later.
+        XCTAssertNotEqual(correct.instant, wrong.instant)
+        XCTAssertEqual(wrong.instant.timeIntervalSince(correct.instant), 1800)
 
         let correctChart = PersonalChart(
             profile: PersonalProfile(birth: correct, polarity: .yang),
